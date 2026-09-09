@@ -1,0 +1,16 @@
+{
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "businesses": "Businesses",
+      "taxonomy": "Taxonomy",
+      "enquiries": "Enquiries",
+      "settings": "Settings"
+    },
+    "common": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete"
+    }
+  }
+}

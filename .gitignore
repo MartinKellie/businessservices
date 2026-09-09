@@ -7,3 +7,12 @@ build/
 coverage/
 *.log
 .DS_Store
+
+# Next.js
+.next/
+next-env.d.ts
+.vercel/
+*.tsbuildinfo
+
+# Test / tooling
+.turbo/

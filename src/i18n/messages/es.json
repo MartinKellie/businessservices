@@ -1,0 +1,16 @@
+{
+  "admin": {
+    "nav": {
+      "dashboard": "Panel",
+      "businesses": "Negocios",
+      "taxonomy": "Taxonomía",
+      "enquiries": "Consultas",
+      "settings": "Configuración"
+    },
+    "common": {
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "delete": "Eliminar"
+    }
+  }
+}
