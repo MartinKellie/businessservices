@@ -210,8 +210,17 @@ Draft/archived → `404`; permanently-closed and relocated stay reachable by dir
   consent state + text version is stored with the enquiry.
 - Spam protection is mostly server-side; the form must include a **hidden honeypot field**
   (label it clearly in code) that real users never fill. No CAPTCHA in MVP.
-- `POST /api/enquiries` (shape _TBD_, Phase 6). Handle: success, validation errors
-  (per-field), rate-limited (`429`), and generic failure. Show a clear confirmation state.
+- `POST /api/enquiries` (live). Send **`multipart/form-data`** when there's a file, else
+  `application/json`. Fields:
+  - `type`: `add_business` | `update_listing` | `advertising` | `general`
+  - `name` (≥2), `email`, `phone?`, `message` (10–4000), `businessReference?`
+  - `consent`: must be `true` (checkbox `on`/`true`/`1` in form-data) — block submit until ticked
+  - `company`: the **honeypot** — a hidden field, must stay empty (bots that fill it get a
+    normal-looking `201 { ok: true, id: null }` and nothing is stored)
+  - `file?`: one image, JPG/PNG/WebP, ≤ 5 MB
+  - Success: `201 { ok: true, id }`. Handle `422` `validation_error` (per-field `fields`),
+    `429` `rate_limited` (max 5 / 10 min, 20 / day per client), `503` maintenance, `500`.
+  - Show a clear confirmation state; the image is never shown publicly (admin review).
 
 ---
 
@@ -378,6 +387,14 @@ Synonyms additionally take `{ scope: 'global'\|'product_service'\|'category', pr
 - with `businessId`: `{ appears, rank, total, matchedByName, score, resolved }`
 - without: `{ total, resolved, results: [{ rank, id, name, status, primaryCategory }] }`
 
+**Enquiries** (scope §33–35)
+| Method | Path | Notes |
+|---|---|---|
+| GET | `/enquiries?status=&type=&includeDeleted=` | one shared queue; each row has `uploadCount` |
+| GET | `/enquiries/:id` | full enquiry + `uploads[]` (with `reviewStatus`, `promotedMediaId`) |
+| PATCH | `/enquiries/:id` | `{ status?, adminNotes?, businessId? }` — link to a business, set `new`/`in_progress`/`closed`; stamps `handledBy` |
+| POST | `/enquiry-uploads/:id/review` | `{ decision: 'reject' }` or `{ decision: 'approve', promoteToBusinessId?, promoteAs?: 'logo'\|'photo' }` — approve can attach the image to a business as media |
+
 ## 13. Change log
 
 - **Phase 0:** document created; routes, layouts, i18n, theme/preference contract, health
@@ -395,3 +412,6 @@ Synonyms additionally take `{ scope: 'global'\|'product_service'\|'category', pr
 - **Phase 5:** public read APIs live — `GET /api/search`, `/api/areas`, `/api/categories`,
   `/api/businesses/:id`, `/api/settings/public`; Maintenance Mode enforced in the public
   shell + a `503` on public APIs.
+- **Phase 6:** public `POST /api/enquiries` (honeypot + per-client rate limit + required
+  consent + optional image upload); admin enquiry queue + upload review + promote-to-media;
+  Resend notification (no-op until configured).

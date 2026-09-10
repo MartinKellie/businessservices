@@ -140,6 +140,24 @@ and `assertNotInMaintenance()` (`src/lib/maintenance.ts`) makes the public API r
 return `503`. `/api/settings/public` and `/api/health` are intentionally exempt; `/admin`
 and `/api/auth` are outside the public shell. The public route group is `force-dynamic`.
 
+## Enquiries (Phase 6 — done)
+
+`src/lib/services/enquiries.ts`. `POST /api/enquiries` (public, `force-dynamic`) accepts
+`multipart/form-data` or JSON. Spam controls (scope §36): honeypot `company` field (filled
+→ silent `201`, nothing stored), per-`ip_hash` rate limit (5 / 10 min, 20 / day) counted
+from the `enquiries` table, and zod validation. Consent is required (`z.literal(true)`) and
+stored with `consent_policy_version` (from settings) + `consent_at`. The client IP is kept
+only as a salted SHA-256 hash (`src/lib/request-meta.ts`). An optional image goes to Vercel
+Blob → `enquiry_uploads` (pending). A best-effort Resend email
+(`src/lib/email.ts`, no-op until `RESEND_API_KEY` + recipients are set) notifies the shared
+inbox.
+
+Admin: `GET/PATCH /api/admin/enquiries[/:id]` (one shared queue, filter by type/status,
+link to a business, `handledBy` stamp), `POST /api/admin/enquiry-uploads/:id/review`
+(reject, or approve + optionally create a `business_media` row from the same blob and
+back-link `promoted_media_id`). Retention (`soft_deleted_at` / `purge_after`) is left for
+the Phase 8 cron.
+
 ## Integrations
 
 - **Vercel Blob** — business media and enquiry uploads; nothing is public until an admin
