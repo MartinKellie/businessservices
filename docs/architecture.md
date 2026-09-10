@@ -85,6 +85,31 @@ account never gets a session. `jwt`/`session` put `adminId` + `role` on the sess
 
 Public users never authenticate.
 
+## Business & taxonomy services (Phase 3 — done)
+
+Service layer in `src/lib/services/*`, thin route handlers in `src/app/api/admin/**`
+using `handle()` + `requireAdmin(role?)`.
+
+- `settings.ts` — singleton `system_settings` read/write; `approvalRequired()` per type.
+- `taxonomy.ts` — categories / products-services / synonyms: list (status + text),
+  create (editor create → `pending` when the per-type toggle is on; owner or toggle-off →
+  `approved`), owner-only review, delete refused while referenced by a business.
+- `businesses.ts` — create (draft), aggregate `getBusiness`, list/search, `updateBusiness`
+  (high-risk contact-field changes require a strong verification method), premises
+  create-or-update (`geography` via `ST_MakePoint`, read back with `ST_X`/`ST_Y`),
+  category/product link replacement.
+- `business-status.ts` — `TRANSITIONS` map, `OWNER_ONLY` set, `publishReadiness()`
+  implementing the publish-minimum (scope §28), enforced on `→ active`.
+- `opening-hours.ts` — full weekly replace of business-wide rows; overnight + split shifts
+  allowed.
+- `business-ops.ts` — internal notes, contact history, follow-ups (one open per business,
+  `follow_ups_one_open_per_business`; `listOpenFollowUps` for the due/overdue dashboard).
+- `media.ts` — upload via `src/lib/blob.ts` (Vercel Blob wrapper, mockable), mime/size
+  limits in `src/lib/media-constraints.ts`, admin uploads auto-approved, review + reorder
+  + delete (also deletes the blob).
+- `src/lib/db-errors.ts` — reads `code`/`constraint` through Drizzle's wrapped `cause`.
+- `src/lib/slug.ts` — `slugify` / `uniqueSlug`.
+
 ## Integrations
 
 - **Vercel Blob** — business media and enquiry uploads; nothing is public until an admin

@@ -279,7 +279,47 @@ client lands.
 
 Internal-only enums the public UI never shows: verification level/method, contact method.
 
-## 12. Change log
+## 12. Admin API reference — Phase 3 (business + taxonomy backend)
+
+All under `/api/admin`, all require a signed-in admin; **owner-only** noted per route.
+Bodies are JSON unless stated. Responses wrap the entity(ies) in a named key; errors use
+the shape in §8. List endpoints accept `?limit=&offset=` and return newest/first-sorted.
+
+**Businesses**
+| Method | Path | Notes |
+|---|---|---|
+| GET | `/businesses?q=&status=` | admin search/list (name, phone, whatsapp) |
+| POST | `/businesses` | `{ name, phone?, whatsapp?, email?, website?, instagram?, facebook? }` → draft |
+| GET | `/businesses/:id` | full aggregate: business + `categories[]` (with `isPrimary`), `productsServices[]`, `premises` (with `lat`/`lng`), `openingHours[]` |
+| PATCH | `/businesses/:id` | name + contact channels; **changing phone/whatsapp/email/website requires** `verification: { level, method, source? }` with `level` ∈ `phone_verified\|visited\|business_claimed`, else `422 verification_required` |
+| POST | `/businesses/:id/status` | `{ status, relocatedToBusinessId? }`; enforces the transition map; `→ active` runs publish checks; `permanently_closed`/`archived` are **owner-only** |
+| GET | `/businesses/:id/status` | `{ publishable, problems: [{ field, message }] }` — drive the "why can't I publish" UI |
+| PUT | `/businesses/:id/premises` | `{ kind: 'physical'\|'service_area', addressLine?, areaId?, lat?, lng?, locationPrecision?, serviceAreaNote? }` (lat+lng together) |
+| PUT | `/businesses/:id/categories` | `{ primaryCategoryId, secondaryCategoryIds[] }` — replaces all; approved categories only |
+| PUT | `/businesses/:id/products-services` | `{ productServiceIds[] }` — replaces all; approved only |
+| PUT | `/businesses/:id/hours` | `{ entries: [{ dayOfWeek 1-7, opensAt 'HH:MM', closesAt 'HH:MM' }] }` — full weekly replace; repeat a day for split shifts; `closesAt <= opensAt` = overnight |
+| GET/POST | `/businesses/:id/notes` | internal notes (never public) |
+| GET/POST | `/businesses/:id/contact-history` | `{ method, outcome?, contactedOn? }` |
+| GET/PUT/DELETE | `/businesses/:id/follow-up` | one open follow-up per business; `PUT { dueOn 'YYYY-MM-DD', note? }` |
+| GET/POST | `/businesses/:id/media` | POST is **multipart/form-data** `file` + `type=logo\|photo` + `altText?`; JPG/PNG/WebP, ≤ 5 MB; admin uploads are auto-approved |
+| PUT | `/businesses/:id/media/order` | `{ orderedIds[] }` |
+
+**Follow-ups dashboard**
+| GET | `/follow-ups?filter=open\|due\|overdue` | `[{ id, businessId, businessName, dueOn, note, overdue }]` |
+| POST | `/follow-ups/:id/complete` | marks done |
+
+**Media review** — `DELETE /media/:id`, `POST /media/:id/review` `{ decision: 'approve'\|'reject' }`
+
+**Taxonomy** (`categories`, `products-services`, `synonyms` — same shape)
+| GET | `/categories?status=&q=` | list |
+| POST | `/categories` | editor create becomes a **request** (`status: pending`) when the per-type approval toggle is on; owners/off → `approved` |
+| PATCH | `/categories/:id` | edit fields |
+| DELETE | `/categories/:id` | **owner-only**; `409 in_use` if referenced by a business |
+| POST | `/categories/:id/review` | **owner-only** `{ decision: 'approve' }` or `{ decision: 'reject', reason }` |
+
+Synonyms additionally take `{ scope: 'global'\|'product_service'\|'category', productServiceId?, categoryId? }` (target must match scope) and have no `PATCH`.
+
+## 13. Change log
 
 - **Phase 0:** document created; routes, layouts, i18n, theme/preference contract, health
   endpoint.
@@ -288,3 +328,6 @@ Internal-only enums the public UI never shows: verification level/method, contac
 - **Phase 2:** admin auth (Google + `admin_users` allow-list, JWT session with role),
   proxy gating of `/admin`, `/admin/iniciar-sesion` placeholder, admin-user management API,
   standard API error shape.
+- **Phase 3:** business + taxonomy backend and admin APIs (see §12) — business CRUD,
+  premises, status flow with publish checks, category/product links, opening hours,
+  notes/contact-history/follow-ups, media upload + review. No public endpoints yet.
