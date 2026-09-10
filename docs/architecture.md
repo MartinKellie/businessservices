@@ -26,16 +26,32 @@ A single Next.js (App Router) application deployed to Vercel:
   generated columns and expression indexes. **`search_normalise(text)`** — lower-case +
   unaccent + whitespace-collapse; must mirror `normaliseSearchText()` in `src/lib/text.ts`.
 
-## Search (planned — Phase 4)
+## Search (Phase 4 — done)
 
-Postgres-only. Each searchable text (business name, category name, product/service name,
-synonym term) has a normalised column (trigram-indexed) and a `spanish` `tsvector`
-(GIN-indexed). Query flow: normalise → resolve synonyms to concept/category ids
-(application-level expansion, not a PG thesaurus dictionary) → select candidate businesses
-→ score (name > concept > category; exact > fuzzy) → filter by area or PostGIS radius →
-apply result filters (open-now computed server-side in `America/Bogota`) → rank
-(relevance → distance, temporarily-closed demoted) → paginate. Pins are returned as a
-separate lightweight array.
+Postgres-only, in `src/lib/services/search.ts`. Each searchable text (business name,
+category name, product/service name, synonym term) has a normalised column
+(trigram-indexed) and a `spanish` `tsvector` (GIN-indexed).
+
+`resolveVocabulary(qNorm)` runs one query matching the query against concept names,
+category names and approved scoped synonyms (exact / substring / trigram / full-text),
+returning `{ conceptMatches, categoryMatches, globalTerms }` with per-match strengths;
+approved `global` synonyms contribute extra name-search terms (query expansion).
+
+`runSearchRows()` is one CTE-heavy statement: `name_hits` (over the query + global terms),
+`concept_hits` / `category_hits` (`unnest` of the resolved id+strength arrays joined to the
+link tables), `browse_hits` (all businesses when there is no query), summed into `scored`,
+then `enriched` with the active premises, primary/other categories, approved logo/photo
+(lateral joins), open-now (`opening_hours` vs `now() AT TIME ZONE 'America/Bogota'`,
+handling overnight), and distance (`ST_Distance` to `COALESCE(premises.location,
+area.centroid)`). Filters: `status NOT IN (draft, archived)`; concept/category discovery
+only surfaces `active`/`temporarily_closed` (name hits also surface `permanently_closed`
+and `relocated`); category / WhatsApp / open-now / area / `ST_DWithin` radius. Ranking:
+`adj_score` (relevance × 0.5 for `temporarily_closed`) desc, then distance, then name.
+Capped at 200 ranked rows; page size 20; `pins` = all capped matches with a location.
+Weights and the trigram threshold are constants at the top of the module.
+
+`searchPreview()` reuses `runSearchRows` to report a business's rank / match reason for a
+term (scope §32).
 
 ## Domain model (Phase 1 — done)
 

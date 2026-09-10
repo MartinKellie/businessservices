@@ -103,11 +103,36 @@ The result detail experience stays on this screen — never navigate away to a b
 - filters: `openNow` (bool), `categoryId`, `whatsapp` (bool)
 - `page`
 
-**Data:** `GET /api/search` returns (shape _TBD_, Phase 4) roughly:
-- `results[]` — full cards (see §6)
-- `pins[]` — `{ businessId, lat, lng, statusLabel }` lightweight markers for the map
-- `total`, `page`, `pageSize`
-- `appliedArea` / `appliedRadiusMeters` for display context
+**Data:** the search engine is built (Phase 4). The public `GET /api/search` route
+wrapping it lands in Phase 5 (with Maintenance Mode); the response shape is now fixed:
+
+```jsonc
+{
+  "results": [ /* SearchCard, current page only, page size 20 */ {
+    "id", "name", "slug",
+    "status",                       // draft|active|temporarily_closed|permanently_closed|relocated|archived
+    "primaryCategory": { "name", "slug", "icon" } | null,   // icon = lucide key for the fallback
+    "otherCategories": [{ "name", "slug" }],
+    "areaName": string | null,
+    "serviceAreaNote": string | null,   // set only for service-area businesses
+    "logoUrl": string | null,           // approved media only
+    "photoUrl": string | null,          // approved media only; use category icon if both null
+    "openStatus": "open" | "closed" | null,   // null = hours unknown → show nothing
+    "distanceMeters": number | null,    // only when lat/lng supplied
+    "contact": { "phone", "whatsapp", "email", "website", "instagram", "facebook" }
+  }],
+  "pins": [ { "businessId", "name", "status", "lat", "lng" } ],  // ALL matches with a location (capped 200), for the map
+  "total": number, "page": number, "pageSize": 20,
+  "appliedAreaId": string | null,
+  "appliedRadiusMeters": number | null,   // set when "Cerca de mí" was used
+  "resolved": { "conceptIds": [], "categoryIds": [], "globalTerms": [] }  // what the query matched, for debugging/telemetry
+}
+```
+
+The full street address is **not** in search results — only in the detail endpoint (§6).
+Matching handles Spanish accents, loose wording, reasonable misspellings, and synonyms
+(a synonym scoped to a concept/category pulls in businesses tagged with that concept;
+"open now" is computed server-side in `America/Bogota`). Search cap: 200 ranked matches.
 
 **Desktop:**
 - Map and list both visible by default.
@@ -319,6 +344,10 @@ the shape in §8. List endpoints accept `?limit=&offset=` and return newest/firs
 
 Synonyms additionally take `{ scope: 'global'\|'product_service'\|'category', productServiceId?, categoryId? }` (target must match scope) and have no `PATCH`.
 
+**Search-preview** (scope §32) — `GET /api/admin/search-preview?q=&businessId=&areaId=`
+- with `businessId`: `{ appears, rank, total, matchedByName, score, resolved }`
+- without: `{ total, resolved, results: [{ rank, id, name, status, primaryCategory }] }`
+
 ## 13. Change log
 
 - **Phase 0:** document created; routes, layouts, i18n, theme/preference contract, health
@@ -331,3 +360,6 @@ Synonyms additionally take `{ scope: 'global'\|'product_service'\|'category', pr
 - **Phase 3:** business + taxonomy backend and admin APIs (see §12) — business CRUD,
   premises, status flow with publish checks, category/product links, opening hours,
   notes/contact-history/follow-ups, media upload + review. No public endpoints yet.
+- **Phase 4:** Postgres search engine (synonym expansion, fuzzy/accent matching, weighted
+  scoring, area + radius, open-now, filters, ranking, pins) + admin search-preview.
+  `SearchCard`/`pins` response shape fixed (§5). Public `/api/search` route comes in Phase 5.
