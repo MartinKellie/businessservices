@@ -175,9 +175,22 @@ physical businesses), full opening hours, all contact channels, and “Última a
 
 Bilingual (ES/EN) with a locale switcher that sets the `ADMIN_LOCALE` cookie.
 
-**Auth:** Google sign-in only, restricted to an allow-list (Phase 2). Unauthenticated
-users hitting `/admin` are redirected to sign-in; non-allow-listed Google accounts get a
-clear “no access” screen. Two roles drive UI visibility:
+**Auth (implemented, Phase 2):** Google sign-in only, restricted to the `admin_users`
+allow-list.
+
+- Sign-in screen: `/admin/iniciar-sesion` — a single "Continuar con Google" action
+  (currently an unstyled placeholder; Cursor owns the design). `?error=` on the URL means
+  the last attempt failed or the account is not on the allow-list — show a clear message.
+- Unauthenticated requests to any other `/admin/*` path are redirected here by the proxy,
+  with `?callbackUrl=` preserved.
+- The session (`next-auth`, JWT) exposes `session.user.email`, `session.user.name`,
+  `session.user.image`, `session.user.role` (`owner` | `editor`) and
+  `session.user.adminId`. Use `session.user.role` to hide controls the role cannot use;
+  the backend independently enforces every rule (a hidden control is not a security
+  boundary).
+- Sign out: `signOut()` from `next-auth/react`, or a POST to `/api/auth/signout`.
+
+Two roles:
 
 - **Owner/Admin:** everything, incl. user/role management, System Settings, taxonomy
   approvals, imports/exports, destructive/archive actions.
@@ -185,8 +198,15 @@ clear “no access” screen. Two roles drive UI visibility:
   (subject to verification rules), notes, contact history, follow-ups; may **request** new
   taxonomy but cannot approve.
 
-The backend enforces all of this server-side; the frontend hides controls the current
-role cannot use. Session/role data exposed via the Auth.js session (Phase 2).
+**API error shape** (all `/api/**` endpoints): `{ "error": { "code": string, "message":
+string (Spanish, safe to show), "fields"?: { "<dotted.path>": string } } }`. Status codes:
+`401` not signed in, `403` wrong role, `404`, `409` conflict (e.g. `already_exists`,
+`last_owner`), `422` `validation_error` (with `fields`), `429` rate-limited, `500`.
+
+**Admin-user management API** (Owner only): `GET /api/admin/users` → `{ users: [...] }`;
+`POST /api/admin/users` `{ email, name?, role }` → `201 { user }`;
+`PATCH /api/admin/users/:id` `{ name?, role?, isActive? }` → `{ user }`. The API refuses to
+remove the last active owner or let an owner lock themselves out.
 
 **Screens / capabilities** (APIs defined Phase 2–8):
 - Global search across businesses.
@@ -265,3 +285,6 @@ Internal-only enums the public UI never shows: verification level/method, contac
   endpoint.
 - **Phase 1:** full database schema (17 tables) + seed data (6 areas, 20 categories, a few
   example product/service concepts + synonyms). Enum vocabulary above is now fixed.
+- **Phase 2:** admin auth (Google + `admin_users` allow-list, JWT session with role),
+  proxy gating of `/admin`, `/admin/iniciar-sesion` placeholder, admin-user management API,
+  standard API error shape.

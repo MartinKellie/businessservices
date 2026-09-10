@@ -35,6 +35,7 @@ cp .env.example .env          # fill in values; generate AUTH_SECRET with `npx a
 docker compose up -d          # starts Postgres + PostGIS on localhost:5432
 npm run db:migrate            # apply migrations
 npm run db:seed               # seed areas, starter categories, default settings
+npm run admin:add -- you@example.com owner   # add yourself to the admin allow-list
 npm run dev                   # http://localhost:3000
 ```
 
@@ -51,6 +52,7 @@ npm run dev                   # http://localhost:3000
 | `npm run db:generate` | Generate a migration from schema changes |
 | `npm run db:migrate` | Apply pending migrations |
 | `npm run db:seed` | Seed reference data |
+| `npm run admin:add -- <email> [owner\|editor]` | Add / re-activate an admin allow-list entry |
 | `npm run db:studio` | Drizzle Studio |
 
 `SKIP_ENV_VALIDATION=1` skips environment validation for lint/typecheck/build steps that

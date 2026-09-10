@@ -66,12 +66,24 @@ The Drizzle `customType` for `geography` emits a quoted type name in generated D
 two geography column lines in `0001_core_schema.sql` are hand-corrected; the schema
 snapshot is unaffected and `drizzle-kit generate`/`check` stay clean.
 
-## Auth (planned — Phase 2)
+## Auth (Phase 2 — done)
 
-Auth.js v5 with the Google provider. The sign-in callback checks the email against
-`admin_users` and loads the role (`owner` | `editor`). `/admin` and admin APIs are guarded
-by the proxy (`src/proxy.ts`) plus per-route server checks. Public users never
-authenticate.
+Auth.js v5, Google provider, JWT sessions (no adapter). Split config: `src/auth.config.ts`
+is edge-safe (providers + the `authorized` gate) and is what `src/proxy.ts` runs;
+`src/auth.ts` adds the Node-runtime callbacks. The `signIn` callback checks the email
+(lower-cased) against `admin_users` and rejects anyone absent or inactive — a rejected
+account never gets a session. `jwt`/`session` put `adminId` + `role` on the session.
+
+- `src/proxy.ts` redirects unauthenticated `/admin/*` (except the sign-in page) to
+  `/admin/iniciar-sesion`.
+- API routes self-guard with `requireAdmin(role?)` (`src/lib/auth-guards.ts`), which throws
+  `HttpError` turned into the standard JSON error by `handle()` in `src/lib/http.ts`.
+  Server pages use `requireAdminPage()`.
+- `hasRole()` in `src/lib/roles.ts`: `owner` implies every `editor` capability.
+- Admin-user management (`/api/admin/users`) is owner-only and protects against removing
+  the last active owner / self lock-out (`src/lib/services/admin-users.ts`).
+
+Public users never authenticate.
 
 ## Integrations
 

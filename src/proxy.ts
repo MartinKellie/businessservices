@@ -1,17 +1,18 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import NextAuth from 'next-auth';
+import { authConfig } from '@/auth.config';
 
 /**
- * Proxy (formerly "middleware" — renamed in Next.js 16). Runs on the server
- * before a route is rendered.
+ * Proxy (formerly "middleware" — renamed in Next.js 16).
  *
- * Phase 0: pass-through skeleton.
- * Phase 2: redirect unauthenticated `/admin` requests to Google sign-in.
- * Phase 5: enforce Maintenance Mode for public routes (settings read from a
- *          cached source; `/admin` and `/api/auth` always exempt).
+ * Auth.js gates the `/admin` area here using the edge-safe config: the
+ * `authorized` callback redirects unauthenticated requests to the sign-in page.
+ * The allow-list itself is enforced in the Node-runtime `signIn` callback.
+ *
+ * Phase 5 will also enforce Maintenance Mode for public routes here.
  */
-export function proxy(_request: NextRequest) {
-  return NextResponse.next();
-}
+const { auth } = NextAuth(authConfig);
+
+export default auth;
 
 export const config = {
   // Run on everything except Next internals and static assets.

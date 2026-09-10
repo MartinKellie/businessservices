@@ -1,10 +1,12 @@
+import { requireAdminPage } from '@/lib/auth-guards';
 import { PlaceholderScreen } from '@/components/placeholder-screen';
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  const admin = await requireAdminPage();
   return (
     <PlaceholderScreen
       title="Admin — Panel"
-      note="Dashboard bilingüe: búsqueda global, negocios, taxonomía, verificación, consultas, importación/exportación, configuración del sistema. Implementado por Cursor."
+      note={`Sesión: ${admin.email} (${admin.role}). Dashboard bilingüe implementado por Cursor.`}
     />
   );
 }
