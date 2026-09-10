@@ -58,6 +58,9 @@ jobs:
       - name: Verify schema is in sync with migrations
         run: npx drizzle-kit check
 
+      - name: Seed reference data
+        run: npm run db:seed
+
       - name: Test
         run: npm test
 

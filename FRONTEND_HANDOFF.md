@@ -4,10 +4,10 @@ This document is the contract between the backend (Claude Code) and the frontend
 (Cursor). Cursor owns all design and frontend implementation; the backend owns the data
 model, APIs, auth, integrations and business rules described here.
 
-**Status:** Phase 0 (foundations). Route structure, layouts, i18n plumbing and a health
-endpoint exist as scaffolding; every screen is a placeholder. API payloads marked _TBD_
-are defined in later phases and this document is updated at the end of each phase whose
-APIs change.
+**Status:** Phase 1 complete (data model & migrations). Route structure, layouts, i18n
+plumbing, a health endpoint and the full database schema exist; every screen is still a
+placeholder. API payloads marked _TBD_ are defined in later phases and this document is
+updated at the end of each phase whose APIs change.
 
 British English in code comments and docs; **all public UI copy is Spanish**.
 
@@ -241,7 +241,27 @@ Tracked in the scope (§47); none block layout/interaction work:
 
 ---
 
-## 11. Change log
+## 11. Enums (stable vocabulary)
+
+These are fixed database enums; the UI renders Spanish (or ES/EN for admin) labels for
+them. TypeScript unions will be exported from `src/db/schema` / `src/lib` as the API
+client lands.
+
+- **Business status:** `draft`, `active`, `temporarily_closed`, `permanently_closed`,
+  `relocated`, `archived`
+- **Enquiry type:** `add_business`, `update_listing`, `advertising`, `general`
+- **Enquiry status:** `new`, `in_progress`, `closed`
+- **Media review status:** `pending`, `approved`, `rejected` (public sees `approved` only)
+- **Taxonomy status:** `pending`, `approved`, `rejected`
+- **Premises kind:** `physical` (address + pin) / `service_area` (described area, no address)
+- **Admin role:** `owner`, `editor`
+- Opening hours use ISO day numbers: **1 = Monday … 7 = Sunday**.
+
+Internal-only enums the public UI never shows: verification level/method, contact method.
+
+## 12. Change log
 
 - **Phase 0:** document created; routes, layouts, i18n, theme/preference contract, health
   endpoint.
+- **Phase 1:** full database schema (17 tables) + seed data (6 areas, 20 categories, a few
+  example product/service concepts + synonyms). Enum vocabulary above is now fixed.

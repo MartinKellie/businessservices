@@ -37,14 +37,34 @@ apply result filters (open-now computed server-side in `America/Bogota`) → ran
 (relevance → distance, temporarily-closed demoted) → paginate. Pins are returned as a
 separate lightweight array.
 
-## Domain model (planned — Phase 1)
+## Domain model (Phase 1 — done)
 
 Business identity and premises/location are **separate** concepts so relocation and
-premises takeover need no schema change. MVP supports one active premises per business.
-Core tables: `areas`, `businesses`, `premises`, `categories`, `business_categories`,
-`products_services`, `business_products_services`, `synonyms`, `opening_hours`,
-`business_media`, `admin_users`, `internal_notes`, `contact_history`, `follow_ups`,
-`enquiries`, `enquiry_uploads`, `system_settings`, plus Auth.js tables.
+premises takeover need no schema change. MVP shows one active premises per business,
+enforced by the partial unique index `premises_one_active_per_business`; history is kept
+via `is_active` + `valid_from`/`valid_to`.
+
+17 tables (`src/db/schema/*`, migration `0001_core_schema.sql`): `areas`, `businesses`,
+`premises`, `opening_hours`, `categories`, `products_services`, `synonyms`,
+`business_categories`, `business_products_services`, `admin_users`, `internal_notes`,
+`contact_history`, `follow_ups`, `business_media`, `enquiries`, `enquiry_uploads`,
+`system_settings`.
+
+Notable invariants: one primary category per business
+(`business_categories_one_primary`), one open follow-up per business
+(`follow_ups_one_open_per_business`), synonym scope/target consistency
+(`synonyms_scope_target` check), singleton `system_settings` row (`id = 'global'`).
+`name_normalised` / `term_normalised` are `STORED GENERATED` via `search_normalise()`;
+`search_vector` columns are generated `to_tsvector('spanish', f_unaccent(...))`. Trigram
+GIN indexes back fuzzy matching, GIN indexes back full-text, GiST indexes back the
+`geography(Point,4326)` columns.
+
+**Auth.js tables are not used** — admin auth uses JWT sessions with the allow-list held in
+`admin_users`, so no adapter/session tables are needed (Phase 2).
+
+The Drizzle `customType` for `geography` emits a quoted type name in generated DDL, so the
+two geography column lines in `0001_core_schema.sql` are hand-corrected; the schema
+snapshot is unaffected and `drizzle-kit generate`/`check` stay clean.
 
 ## Auth (planned — Phase 2)
 
