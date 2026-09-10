@@ -126,6 +126,20 @@ using `handle()` + `requireAdmin(role?)`.
 - `src/lib/db-errors.ts` — reads `code`/`constraint` through Drizzle's wrapped `cause`.
 - `src/lib/slug.ts` — `slugify` / `uniqueSlug`.
 
+## Public read APIs (Phase 5 — done)
+
+`src/lib/services/public.ts` + `src/lib/services/settings.ts#getPublicSettings`, exposed at
+`/api/{search,areas,categories,businesses/[id],settings/public}` (no auth). `listActiveAreas`
+and `listPublicCategories` (with a discoverable-business count) use raw `db.execute`;
+`getPublicBusiness` accepts a uuid or slug, 404s draft/archived, reveals address + full
+hours + approved media, and includes `lastUpdatedAt` only when `public_last_updated_visible`.
+
+**Maintenance Mode** (scope §39) is enforced in the Node runtime, not the edge proxy:
+`app/(public)/layout.tsx` renders the fixed Spanish screen when `maintenanceMode` is on,
+and `assertNotInMaintenance()` (`src/lib/maintenance.ts`) makes the public API routes
+return `503`. `/api/settings/public` and `/api/health` are intentionally exempt; `/admin`
+and `/api/auth` are outside the public shell. The public route group is `force-dynamic`.
+
 ## Integrations
 
 - **Vercel Blob** — business media and enquiry uploads; nothing is public until an admin

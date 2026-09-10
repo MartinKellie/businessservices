@@ -41,6 +41,24 @@ export async function updateSettings(
   return row;
 }
 
+export type PublicSettings = {
+  maintenanceMode: boolean;
+  announcement: { enabled: boolean; text: string };
+  nearMeRadiusMeters: number;
+  showLastUpdated: boolean;
+};
+
+/** The settings subset safe to expose to the public site. */
+export async function getPublicSettings(): Promise<PublicSettings> {
+  const s = await getSettings();
+  return {
+    maintenanceMode: s.maintenanceMode,
+    announcement: { enabled: s.announcementEnabled, text: s.announcementText },
+    nearMeRadiusMeters: s.nearMeRadiusMeters,
+    showLastUpdated: s.publicLastUpdatedVisible,
+  };
+}
+
 /** Which taxonomy types currently require owner approval for new entries. */
 export async function approvalRequired() {
   const s = await getSettings();

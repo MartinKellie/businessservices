@@ -79,15 +79,16 @@ on (see §9); `/admin` stays reachable.
 ## 4. Homepage requirements
 
 - Dominant “¿Qué estás buscando?” search field → navigates to `/buscar` with the query.
-- Area/community selector (data: `GET /api/areas`). Selection persists locally and is the
-  default area for searches.
+- Area/community selector (data: `GET /api/areas` → `{ areas: [{ id, name, slug, lat, lng }] }`).
+  Selection persists locally and is the default area for searches.
 - “Cerca de mí” action: request device geolocation. On grant, searches use the device
   coordinates + the global radius. On denial/failure, fall back to the selected area. Make
   the permission state and fallback obvious to the user.
-- Popular/browsable categories (data: `GET /api/categories`) → each links to `/buscar`
-  pre-filtered by that category.
-- Announcement banner: text-only, fixed placement, shown only when enabled
-  (`GET /api/settings/public`). No link/button in MVP.
+- Popular/browsable categories: `GET /api/categories?popular=1` (omit `popular` for all)
+  → `{ categories: [{ id, name, slug, icon, isPopular, businessCount }] }`. `icon` is a
+  lucide key. Each links to `/buscar?categoryId=…`.
+- Announcement banner: text-only, fixed placement, shown only when
+  `announcement.enabled` (`GET /api/settings/public`). No link/button in MVP.
 - Links to About, Advertise, public contact. Discreet “Powered by MK1GROUP”.
 - Neutral homepage — **no featured businesses** at launch.
 
@@ -103,8 +104,9 @@ The result detail experience stays on this screen — never navigate away to a b
 - filters: `openNow` (bool), `categoryId`, `whatsapp` (bool)
 - `page`
 
-**Data:** the search engine is built (Phase 4). The public `GET /api/search` route
-wrapping it lands in Phase 5 (with Maintenance Mode); the response shape is now fixed:
+**Data:** `GET /api/search` is live (Phase 5). Query params match `q`, `areaId`, `lat`,
+`lng`, `categoryId`, `openNow`, `whatsapp`, `page` above. Returns `503` during Maintenance
+Mode. Response shape:
 
 ```jsonc
 {
@@ -172,9 +174,26 @@ Card fields (all optional unless noted; full field list & types finalised Phase 
 
 No description, prices, offers, or ratings in the MVP.
 
-Expanded card / detail: `GET /api/businesses/:id` (Phase 5) — includes the address (for
-physical businesses), full opening hours, all contact channels, and “Última actualización”
-**only if** the global setting enables it.
+Expanded card / detail: `GET /api/businesses/:id` (live — accepts the uuid or the slug):
+
+```jsonc
+{ "business": {
+  "id", "name", "slug", "status",
+  "primaryCategory": { "name", "slug", "icon" } | null,
+  "otherCategories": [{ "name", "slug" }],
+  "area": { "name", "slug" } | null,
+  "address": string | null,                 // physical premises only
+  "location": { "lat", "lng" } | null,      // physical premises only
+  "serviceAreaNote": string | null,         // service-area businesses only
+  "logoUrl": string | null, "photoUrls": string[],   // approved media only
+  "contact": { "phone", "whatsapp", "email", "website", "instagram", "facebook" },
+  "openingHours": [{ "dayOfWeek", "opensAt", "closesAt" }],   // sorted; may be []
+  "relocatedTo": { "id", "slug", "name" } | null,   // set when status = relocated
+  "lastUpdatedAt": string | null            // ISO; null unless the setting is on
+}}
+```
+
+Draft/archived → `404`; permanently-closed and relocated stay reachable by direct id/slug.
 
 ---
 
@@ -260,18 +279,29 @@ success + failure; optimistic updates only where safe.
 
 ## 9. System Settings & Maintenance Mode
 
-`GET /api/settings/public` (Phase 5) exposes only what the public site needs:
-`maintenanceMode`, `announcementBannerEnabled`, `announcementBannerText`,
-`nearMeRadiusMeters`, `showLastUpdated`.
+`GET /api/settings/public` (live) — fetch once per page load, served even during
+maintenance:
+
+```jsonc
+{
+  "maintenanceMode": boolean,
+  "announcement": { "enabled": boolean, "text": string },   // text-only banner, fixed placement, no link
+  "nearMeRadiusMeters": number,                             // "Cerca de mí" radius
+  "showLastUpdated": boolean                                // whether detail exposes lastUpdatedAt
+}
+```
+
+Public endpoints (`/api/search`, `/api/areas`, `/api/categories`, `/api/businesses/:id`)
+return **`503`** `{ error: { code: "maintenance", message } }` when `maintenanceMode` is on.
 
 Admin System Settings (Phase 8) also covers: per-type taxonomy approval toggles, enquiry
 retention period (months), enquiry deletion grace period (days).
 
-**Maintenance Mode:** when on, the proxy (`src/proxy.ts`, formerly "middleware") serves a
-fixed Spanish maintenance message for all public routes; `/admin` and `/api/auth/*`
-remain accessible. The message is **not**
-editable in the MVP — Cursor designs the maintenance screen; copy is a fixed string
-provided by the backend/product.
+**Maintenance Mode:** when on, the public site shell (`app/(public)/layout.tsx`) renders a
+fixed Spanish maintenance screen instead of the page; `/admin` and `/api/auth/*` are
+outside that shell and stay reachable. (Enforced in the Node layout, not the edge proxy,
+because the check needs the database.) The message is **not** editable in the MVP — Cursor
+designs the screen; the copy is `MAINTENANCE_MESSAGE` from `src/lib/maintenance.ts`.
 
 ---
 
@@ -362,4 +392,6 @@ Synonyms additionally take `{ scope: 'global'\|'product_service'\|'category', pr
   notes/contact-history/follow-ups, media upload + review. No public endpoints yet.
 - **Phase 4:** Postgres search engine (synonym expansion, fuzzy/accent matching, weighted
   scoring, area + radius, open-now, filters, ranking, pins) + admin search-preview.
-  `SearchCard`/`pins` response shape fixed (§5). Public `/api/search` route comes in Phase 5.
+- **Phase 5:** public read APIs live — `GET /api/search`, `/api/areas`, `/api/categories`,
+  `/api/businesses/:id`, `/api/settings/public`; Maintenance Mode enforced in the public
+  shell + a `503` on public APIs.
