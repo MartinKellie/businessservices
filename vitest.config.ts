@@ -7,6 +7,9 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts', 'tests/**/*.test.ts'],
+    // Integration tests share one Postgres and truncate tables, so test files
+    // must not run in parallel.
+    fileParallelism: false,
     env: {
       // Tests never need the full runtime env; DB-backed tests read DATABASE_URL
       // directly and are skipped when it is absent.
