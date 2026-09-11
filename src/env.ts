@@ -41,7 +41,10 @@ function loadEnv(): Env {
   if (process.env.SKIP_ENV_VALIDATION) {
     return process.env as unknown as Env;
   }
-  const parsed = schema.safeParse(process.env);
+  const cleaned = Object.fromEntries(
+    Object.entries(process.env).map(([key, value]) => [key, value === '' ? undefined : value]),
+  );
+  const parsed = schema.safeParse(cleaned);
   if (!parsed.success) {
     const issues = parsed.error.issues
       .map((i) => `  - ${i.path.join('.')}: ${i.message}`)

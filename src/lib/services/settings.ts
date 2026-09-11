@@ -1,4 +1,5 @@
 import { eq, sql } from 'drizzle-orm';
+import { z } from 'zod';
 import { db } from '@/db';
 import { systemSettings } from '@/db/schema';
 
@@ -27,6 +28,24 @@ export async function getSettings(): Promise<SystemSettings> {
     (await db.query.systemSettings.findFirst({ where: eq(systemSettings.id, SINGLETON_ID) }))!
   );
 }
+
+/** All Owner-editable settings (scope §38), each optional for a partial PATCH. */
+export const updateSettingsSchema = z
+  .object({
+    approvalRequiredCategories: z.boolean(),
+    approvalRequiredProducts: z.boolean(),
+    approvalRequiredSynonyms: z.boolean(),
+    publicLastUpdatedVisible: z.boolean(),
+    nearMeRadiusMeters: z.number().int().min(100).max(50_000),
+    maintenanceMode: z.boolean(),
+    announcementEnabled: z.boolean(),
+    announcementText: z.string().trim().max(300),
+    enquiryRetentionMonths: z.number().int().min(1).max(60),
+    enquiryDeletionGraceDays: z.number().int().min(1).max(365),
+    privacyPolicyVersion: z.string().trim().min(1).max(20),
+  })
+  .partial()
+  .refine((v) => Object.keys(v).length > 0, { message: 'No hay cambios que aplicar.' });
 
 export async function updateSettings(
   patch: Partial<Omit<SystemSettings, 'id' | 'updatedAt' | 'updatedBy'>>,

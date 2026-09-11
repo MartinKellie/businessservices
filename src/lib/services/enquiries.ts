@@ -1,9 +1,9 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, isNull, lt, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '@/db';
 import { businessMedia, businesses, enquiries, enquiryUploads } from '@/db/schema';
 import { HttpError } from '@/lib/http';
-import { putObject } from '@/lib/blob';
+import { deleteObject, putObject } from '@/lib/blob';
 import { sendEmail } from '@/lib/email';
 import { ACCEPTED_EXTENSION, MAX_UPLOAD_BYTES, isAcceptedImageType } from '@/lib/media-constraints';
 import { getSettings } from '@/lib/services/settings';
@@ -284,4 +284,46 @@ export async function reviewEnquiryUpload(
       .returning();
     return row;
   });
+}
+
+// --- Retention (scope §37, run by the Phase 8 Vercel Cron job) --------------
+
+/**
+ * Soft-deletes enquiries past the retention period, then hard-deletes ones
+ * past their grace period. An upload's blob is only removed if it was never
+ * promoted to business media (a promoted image is now part of the business
+ * record, not the enquiry's).
+ */
+export async function runEnquiryRetention() {
+  const settings = await getSettings();
+
+  const softDeleted = await db
+    .update(enquiries)
+    .set({
+      softDeletedAt: sql`now()`,
+      purgeAfter: sql`now() + make_interval(days => ${settings.enquiryDeletionGraceDays})`,
+    })
+    .where(
+      and(
+        isNull(enquiries.softDeletedAt),
+        sql`${enquiries.createdAt} < now() - make_interval(months => ${settings.enquiryRetentionMonths})`,
+      ),
+    )
+    .returning({ id: enquiries.id });
+
+  const toPurge = await db
+    .select({ id: enquiries.id })
+    .from(enquiries)
+    .where(and(sql`${enquiries.purgeAfter} is not null`, lt(enquiries.purgeAfter, sql`now()`)));
+
+  for (const { id } of toPurge) {
+    const uploads = await db.select().from(enquiryUploads).where(eq(enquiryUploads.enquiryId, id));
+    for (const upload of uploads) {
+      if (upload.promotedMediaId) continue;
+      await deleteObject(upload.blobUrl).catch(() => {});
+    }
+    await db.delete(enquiries).where(eq(enquiries.id, id)); // cascades to enquiry_uploads
+  }
+
+  return { softDeleted: softDeleted.length, purged: toPurge.length };
 }
