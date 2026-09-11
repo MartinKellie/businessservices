@@ -448,3 +448,15 @@ read-only `id, slug, status, lastVerifiedAt` columns.
 - **Phase 6:** public `POST /api/enquiries` (honeypot + per-client rate limit + required
   consent + optional image upload); admin enquiry queue + upload review + promote-to-media;
   Resend notification (no-op until configured).
+- **Phase 7:** business CSV/Excel import and export, Owner only. Import is staged
+  (`/api/admin/imports[/:id[/rows|/commit|/discard]]`) — rows validate against the
+  draft-minimum and resolve categories/products/areas accent- and case-insensitively, but
+  nothing touches the business tables until an explicit commit, which creates a draft
+  business per valid row (still gated by the existing publish-minimum check to go live).
+  Export (`/api/admin/businesses/export`) returns the same column shape as CSV or `.xlsx`.
+- **Phase 8:** System Settings panel API (scope §38) — `GET`/`PATCH /api/admin/settings`,
+  Owner only, covering taxonomy approval toggles, Maintenance Mode, the announcement
+  banner, near-me radius, and enquiry retention/grace periods. Paired with a Vercel Cron
+  job (`GET /api/cron/retention`, bearer-secret gated, see `vercel.json`) that soft-deletes
+  enquiries past the retention period and hard-deletes plus purges unpromoted upload blobs
+  past the grace period.
