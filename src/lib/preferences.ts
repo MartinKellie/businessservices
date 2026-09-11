@@ -9,6 +9,7 @@ export const PREF = {
   desktopPane: 'pref.desktopPane',
   mobileView: 'pref.mobileView',
   theme: 'pref.theme',
+  devUiLocale: 'pref.devUiLocale',
 } as const;
 
 export type ThemePreference = 'system' | 'light' | 'dark';

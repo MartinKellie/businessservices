@@ -5,6 +5,7 @@
 export const FALLBACK_MAP_STYLE = {
   version: 8 as const,
   name: 'osm-raster-fallback',
+  glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
   sources: {
     osm: {
       type: 'raster' as const,

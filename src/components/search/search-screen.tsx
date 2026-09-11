@@ -3,17 +3,28 @@
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { List, Map as MapIcon, Navigation, PanelLeftClose, PanelRightClose } from 'lucide-react';
+import { List, Map as MapIcon, Navigation } from 'lucide-react';
 import { BusinessDetail } from '@/components/search/business-detail';
 import { ResultCard } from '@/components/search/result-card';
 import type { PublicArea, PublicCategory, SearchQuery, SearchResult } from '@/lib/api-contract';
 import { PublicApiError, fetchSearch, searchQueryToParams } from '@/lib/api-contract';
+import { fill } from '@/lib/public-copy';
 import { PREF, type DesktopPane, type MobileView } from '@/lib/preferences';
 import { usePreference } from '@/lib/use-preference';
+import { usePublicCopy } from '@/lib/use-public-copy';
+
+function MapLoading() {
+  const { copy } = usePublicCopy();
+  return (
+    <div className="grid h-full min-h-72 place-items-center border-ink/20 bg-board text-sm text-muted md:border-l-2">
+      {copy.loadingMap}
+    </div>
+  );
+}
 
 const SearchMap = dynamic(() => import('@/components/search/search-map').then((mod) => mod.SearchMap), {
   ssr: false,
-  loading: () => <div className="grid h-full place-items-center text-sm text-muted">Cargando mapa…</div>,
+  loading: () => <MapLoading />,
 });
 
 interface SearchScreenProps {
@@ -51,7 +62,8 @@ export function SearchScreen({
   const [storedAreaSlug, setStoredAreaSlug] = usePreference(PREF.area);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [geoDenied, setGeoDenied] = useState(Boolean(locationDenied));
-  const listRef = useRef<HTMLDivElement>(null);
+  const [geoAsking, setGeoAsking] = useState(false);
+  const { copy } = usePublicCopy();
   const dragging = useRef(false);
 
   const split = (() => {
@@ -94,27 +106,19 @@ export function SearchScreen({
         if (err instanceof PublicApiError) {
           setError(err.message);
         } else {
-          setError('No se pudieron cargar los resultados.');
+          setError(copy.loadResults);
         }
       });
     return () => {
       cancelled = true;
     };
-  }, [queryKey, fetchedKey]);
+  }, [queryKey, fetchedKey, copy.loadResults]);
 
   function selectBusiness(id: string, from: 'list' | 'map') {
     setSelectedId(id);
     if (from === 'map') setSheetOpen(true);
     const node = document.getElementById(`result-${id}`);
     node?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  }
-
-  function setDesktopPane(next: DesktopPane) {
-    setStoredPane(next);
-  }
-
-  function setMobile(next: MobileView) {
-    setStoredMobile(next);
   }
 
   function onDividerPointerDown(event: React.PointerEvent<HTMLDivElement>) {
@@ -136,16 +140,32 @@ export function SearchScreen({
     dragging.current = false;
   }
 
+  function onDividerKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      setStoredSplit(String(Math.max(28, split - 2)));
+    } else if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      setStoredSplit(String(Math.min(72, split + 2)));
+    } else if (event.key === 'Home') {
+      event.preventDefault();
+      setStoredSplit('28');
+    } else if (event.key === 'End') {
+      event.preventDefault();
+      setStoredSplit('72');
+    }
+  }
+
   const area = areas.find((item) => item.id === effectiveQuery.areaId);
   const category = categories.find((item) => item.id === effectiveQuery.categoryId);
   const usingNearMe = effectiveQuery.lat != null && effectiveQuery.lng != null;
   const contextLabel = usingNearMe
-    ? `Cerca de ti${result?.appliedRadiusMeters ? ` (${Math.round(result.appliedRadiusMeters / 1000)} km)` : ''}`
-    : area?.name ?? 'Todas las zonas';
+    ? `${copy.nearYou}${result?.appliedRadiusMeters ? ` (${Math.round(result.appliedRadiusMeters / 1000)} km)` : ''}`
+    : area?.name ?? copy.allAreas;
 
   const listPane = (
-    <div ref={listRef} className="board-scroll h-full overflow-y-auto">
-      {loading ? <p className="px-4 py-8 text-muted">Buscando…</p> : null}
+    <div className="board-scroll h-full overflow-y-auto">
+      {loading ? <ResultSkeleton /> : null}
       {error ? (
         <p className="px-4 py-8" role="alert">
           {error}
@@ -153,11 +173,8 @@ export function SearchScreen({
       ) : null}
       {!loading && !error && result && result.results.length === 0 ? (
         <div className="px-4 py-10">
-          <p className="font-display text-3xl font-extrabold uppercase">Nada en el tablero</p>
-          <p className="mt-3 text-muted">
-            Prueba con otras palabras, otra zona, o quita un filtro. El buscador entiende nombres,
-            oficios y cómo se dice por aquí.
-          </p>
+          <p className="font-display text-3xl font-extrabold uppercase">{copy.emptyBoard}</p>
+          <p className="mt-3 max-w-prose text-muted">{copy.emptyBoardHint}</p>
         </div>
       ) : null}
       {result?.results.map((card) => (
@@ -182,7 +199,7 @@ export function SearchScreen({
   );
 
   const mapPane = (
-    <div className="relative h-full min-h-72">
+    <div className="relative h-full min-h-72 md:border-l-2 md:border-ink">
       <SearchMap
         pins={result?.pins ?? []}
         selectedId={selectedId}
@@ -197,10 +214,11 @@ export function SearchScreen({
         <div className="absolute inset-x-0 bottom-0 max-h-[70%] overflow-y-auto border-t-2 border-ink bg-board shadow-[0_-8px_24px_rgb(0_0_0_/_0.18)] md:hidden">
           <button
             type="button"
-            className="w-full py-2 text-xs uppercase tracking-wide text-muted"
+            className="flex w-full flex-col items-center pt-2 pb-1 text-xs uppercase tracking-wide text-muted"
             onClick={() => setSheetOpen(false)}
           >
-            Cerrar ficha
+            <span className="mb-2 h-1 w-10 bg-rail/50" aria-hidden="true" />
+            {copy.closeSheet}
           </button>
           {result?.results
             .filter((card) => card.id === selectedId)
@@ -218,25 +236,34 @@ export function SearchScreen({
   const mapWidth = pane === 'list' ? '0%' : pane === 'map' ? '100%' : `${100 - split}%`;
 
   return (
-    <div className="flex h-[calc(100dvh-9.5rem)] flex-col md:h-[calc(100dvh-8.25rem)]">
+    <div className="flex h-full min-h-0 flex-1 flex-col">
       <div className="shrink-0 border-b border-rail/25 px-4 py-3 sm:px-6">
         <form
-          className="flex flex-col gap-3 lg:flex-row lg:items-end"
+          className="flex flex-col gap-3 md:flex-row md:items-end"
           onSubmit={(event) => {
             event.preventDefault();
             replaceQuery({ ...query, q: draftQ.trim() || undefined, page: 1 });
           }}
         >
           <label className="letter-track min-w-0 flex-1 border-b-2 border-rail pb-1">
-            <span className="sr-only">Qué estás buscando</span>
+            <span className="sr-only">{copy.whatLooking}</span>
             <input
               value={draftQ}
               onChange={(event) => setDraftQ(event.target.value)}
-              className="font-display w-full bg-transparent text-2xl font-bold uppercase tracking-wide"
-              placeholder="¿Qué estás buscando?"
+              className="font-display w-full bg-transparent text-2xl font-bold tracking-wide sm:text-3xl"
+              placeholder={copy.whatLooking}
             />
           </label>
-          <div className="flex flex-wrap gap-2">
+          <button
+            type="submit"
+            className="bg-ink px-5 py-2 font-display text-lg font-extrabold uppercase tracking-wide text-board hover:bg-signal hover:text-signal-ink"
+          >
+            {copy.search}
+          </button>
+        </form>
+
+        <div className="mt-3 flex flex-wrap items-stretch gap-2">
+          <div className="flex w-full min-w-0 basis-full border border-rail/40 sm:max-w-md sm:basis-auto">
             <select
               value={effectiveQuery.areaId ?? ''}
               onChange={(event) => {
@@ -245,10 +272,10 @@ export function SearchScreen({
                 if (slug) setStoredAreaSlug(slug);
                 replaceQuery({ ...query, areaId, lat: undefined, lng: undefined, page: 1 });
               }}
-              className="border border-rail/40 bg-board px-2 py-2"
-              aria-label="Zona"
+              className="min-w-0 flex-1 border-0 bg-transparent px-3 py-2 text-sm"
+              aria-label={copy.area}
             >
-              <option value="">Todas las zonas</option>
+              <option value="">{copy.allAreas}</option>
               {areas.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.name}
@@ -257,26 +284,22 @@ export function SearchScreen({
             </select>
             <button
               type="button"
-              onClick={() => requestNearMe(replaceQuery, query, setGeoDenied)}
-              className={`inline-flex items-center gap-1.5 border px-3 py-2 text-sm ${
-                usingNearMe ? 'bg-ink text-board' : 'border-rail/40'
+              onClick={() => requestNearMe(replaceQuery, query, setGeoDenied, setGeoAsking)}
+              disabled={geoAsking}
+              aria-pressed={usingNearMe}
+              className={`inline-flex shrink-0 items-center gap-1.5 border-l px-3 py-2 text-sm ${
+                usingNearMe ? 'bg-ink text-board' : 'border-rail/40 hover:bg-ink hover:text-board'
               }`}
             >
               <Navigation size={16} strokeWidth={2} aria-hidden="true" />
-              Cerca de mí
-            </button>
-            <button type="submit" className="bg-ink px-4 py-2 font-display font-extrabold uppercase text-board">
-              Buscar
+              {geoAsking ? copy.locatingShort : copy.nearMe}
             </button>
           </div>
-        </form>
-
-        <div className="mt-3 flex flex-wrap items-center gap-2" aria-label="Filtros">
           <FilterChip
             active={Boolean(query.openNow)}
             onClick={() => replaceQuery({ ...query, openNow: !query.openNow, page: 1 })}
           >
-            Abierto ahora
+            {copy.openNow}
           </FilterChip>
           <FilterChip
             active={Boolean(query.whatsapp)}
@@ -285,7 +308,7 @@ export function SearchScreen({
             WhatsApp
           </FilterChip>
           <label className="sr-only" htmlFor="category-filter">
-            Categoría
+            {copy.category}
           </label>
           <select
             id="category-filter"
@@ -293,65 +316,58 @@ export function SearchScreen({
             onChange={(event) =>
               replaceQuery({ ...query, categoryId: event.target.value || undefined, page: 1 })
             }
-            className={`border px-2 py-1.5 text-sm ${query.categoryId ? 'bg-ink text-board' : 'border-rail/40 bg-board'}`}
+            className={`border px-3 py-2 text-sm ${query.categoryId ? 'border-ink bg-ink text-board' : 'border-rail/40 bg-board'}`}
           >
-            <option value="">Todas las categorías</option>
+            <option value="">{copy.allCategories}</option>
             {categories.map((item) => (
               <option key={item.id} value={item.id}>
                 {item.name}
               </option>
             ))}
           </select>
-          <p className="text-sm text-muted">
+          <p className="self-center text-sm text-muted">
             {contextLabel}
             {category ? ` · ${category.name}` : ''}
-            {result ? ` · ${result.total} ${result.total === 1 ? 'resultado' : 'resultados'}` : ''}
+            {result
+              ? ` · ${result.total} ${result.total === 1 ? copy.resultOne : copy.resultMany}`
+              : ''}
           </p>
         </div>
 
         {geoDenied && !usingNearMe ? (
           <p className="mt-2 text-sm text-warn" role="status">
-            No se pudo usar tu ubicación. Mostrando {area?.name ?? 'la zona seleccionada'}.
+            {fill(copy.geoDeniedSearch, { area: area?.name ?? copy.selectedAreaFallback })}
           </p>
         ) : null}
 
-        <div className="mt-3 flex items-center justify-between md:hidden">
-          <div className="flex border border-rail/40">
-            <button
-              type="button"
-              className={`inline-flex items-center gap-1 px-3 py-1.5 text-sm ${mobileView === 'map' ? 'bg-ink text-board' : ''}`}
-              onClick={() => setMobile('map')}
+        <div className="mt-3 flex items-center justify-between">
+          <div className="flex border border-rail/40 md:hidden">
+            <PaneClip
+              active={mobileView === 'map'}
+              onClick={() => setStoredMobile('map')}
+              icon={<MapIcon size={16} strokeWidth={2} aria-hidden="true" />}
             >
-              <MapIcon size={16} strokeWidth={2} aria-hidden="true" />
-              Mapa
-            </button>
-            <button
-              type="button"
-              className={`inline-flex items-center gap-1 px-3 py-1.5 text-sm ${mobileView === 'list' ? 'bg-ink text-board' : ''}`}
-              onClick={() => setMobile('list')}
+              {copy.map}
+            </PaneClip>
+            <PaneClip
+              active={mobileView === 'list'}
+              onClick={() => setStoredMobile('list')}
+              icon={<List size={16} strokeWidth={2} aria-hidden="true" />}
             >
-              <List size={16} strokeWidth={2} aria-hidden="true" />
-              Lista
-            </button>
+              {copy.list}
+            </PaneClip>
           </div>
-        </div>
-        <div className="mt-3 hidden items-center gap-2 md:flex">
-          <button
-            type="button"
-            className="inline-flex items-center gap-1 text-sm underline-offset-4 hover:underline"
-            onClick={() => setDesktopPane(pane === 'map' ? 'none' : 'list')}
-          >
-            <PanelRightClose size={16} strokeWidth={2} aria-hidden="true" />
-            {pane === 'map' ? 'Mostrar lista' : 'Ocultar mapa'}
-          </button>
-          <button
-            type="button"
-            className="inline-flex items-center gap-1 text-sm underline-offset-4 hover:underline"
-            onClick={() => setDesktopPane(pane === 'list' ? 'none' : 'map')}
-          >
-            <PanelLeftClose size={16} strokeWidth={2} aria-hidden="true" />
-            {pane === 'list' ? 'Mostrar mapa' : 'Ocultar lista'}
-          </button>
+          <div className="hidden border border-rail/40 md:flex" role="group" aria-label={copy.panes}>
+            <PaneClip active={pane === 'list'} onClick={() => setStoredPane('list')}>
+              {copy.list}
+            </PaneClip>
+            <PaneClip active={pane === 'none'} onClick={() => setStoredPane('none')}>
+              {copy.both}
+            </PaneClip>
+            <PaneClip active={pane === 'map'} onClick={() => setStoredPane('map')}>
+              {copy.map}
+            </PaneClip>
+          </div>
         </div>
       </div>
 
@@ -365,18 +381,42 @@ export function SearchScreen({
           <div
             role="separator"
             aria-orientation="vertical"
-            aria-label="Ajustar divisor"
+            aria-label={copy.split}
+            aria-valuemin={28}
+            aria-valuemax={72}
+            aria-valuenow={split}
             tabIndex={0}
-            className="w-2 shrink-0 cursor-col-resize bg-rail/30 hover:bg-signal"
+            className="group relative w-3 shrink-0 cursor-col-resize touch-none"
             onPointerDown={onDividerPointerDown}
             onPointerMove={onDividerPointerMove}
             onPointerUp={onDividerPointerUp}
-          />
+            onKeyDown={onDividerKeyDown}
+          >
+            <span className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-rail/50 group-hover:bg-signal group-focus-visible:bg-signal" />
+          </div>
         ) : null}
         <div style={{ width: mapWidth }} className={pane === 'list' ? 'hidden' : 'min-w-0'}>
           {mapPane}
         </div>
       </div>
+    </div>
+  );
+}
+
+function ResultSkeleton() {
+  const { copy } = usePublicCopy();
+  return (
+    <div className="px-4 py-2" aria-hidden="true">
+      {[0, 1, 2, 3, 4].map((row) => (
+        <div key={row} className="flex items-center gap-3 border-b border-rail/15 py-4">
+          <span className="menu-skeleton size-10 shrink-0" />
+          <span className="min-w-0 flex-1 space-y-2">
+            <span className="menu-skeleton block h-4 w-2/3" />
+            <span className="menu-skeleton block h-3 w-1/3" />
+          </span>
+        </div>
+      ))}
+      <p className="sr-only">{copy.searching}</p>
     </div>
   );
 }
@@ -394,8 +434,37 @@ function FilterChip({
     <button
       type="button"
       onClick={onClick}
-      className={`border px-3 py-1.5 text-sm ${active ? 'bg-ink text-board' : 'border-rail/40'}`}
+      aria-pressed={active}
+      className={`border px-3 py-2 text-sm ${
+        active ? 'border-ink bg-ink text-board' : 'border-rail/40 hover:bg-ink hover:text-board'
+      }`}
     >
+      {children}
+    </button>
+  );
+}
+
+function PaneClip({
+  active,
+  onClick,
+  children,
+  icon,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+  icon?: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm ${
+        active ? 'bg-ink text-board' : 'hover:bg-ink hover:text-board'
+      }`}
+    >
+      {icon}
       {children}
     </button>
   );
@@ -413,6 +482,7 @@ function Pagination({
   onPage: (page: number) => void;
 }) {
   const pages = Math.ceil(total / pageSize);
+  const { copy } = usePublicCopy();
   return (
     <div className="flex items-center justify-between px-4 py-4 text-sm">
       <button
@@ -421,7 +491,7 @@ function Pagination({
         onClick={() => onPage(page - 1)}
         className="underline-offset-4 hover:underline disabled:opacity-40"
       >
-        Anterior
+        {copy.previous}
       </button>
       <p className="tabular-nums">
         {page} / {pages}
@@ -432,7 +502,7 @@ function Pagination({
         onClick={() => onPage(page + 1)}
         className="underline-offset-4 hover:underline disabled:opacity-40"
       >
-        Siguiente
+        {copy.next}
       </button>
     </div>
   );
@@ -442,13 +512,16 @@ function requestNearMe(
   replaceQuery: (next: SearchQuery) => void,
   query: SearchQuery,
   setGeoDenied: (value: boolean) => void,
+  setGeoAsking: (value: boolean) => void,
 ) {
   if (!navigator.geolocation) {
     setGeoDenied(true);
     return;
   }
+  setGeoAsking(true);
   navigator.geolocation.getCurrentPosition(
     (position) => {
+      setGeoAsking(false);
       setGeoDenied(false);
       replaceQuery({
         ...query,
@@ -459,6 +532,7 @@ function requestNearMe(
       });
     },
     () => {
+      setGeoAsking(false);
       setGeoDenied(true);
     },
     { enableHighAccuracy: false, timeout: 8000, maximumAge: 60_000 },

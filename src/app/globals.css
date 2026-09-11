@@ -41,21 +41,62 @@
   --focus: #3dcc6a;
 }
 
-* {
-  box-sizing: border-box;
-}
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
 
-html,
-body {
-  margin: 0;
-  min-height: 100%;
-}
+  html,
+  body {
+    margin: 0;
+    min-height: 100%;
+  }
 
-body {
-  background: var(--board);
-  color: var(--ink);
-  font-family: var(--font-sans);
-  line-height: 1.5;
+  body {
+    background: var(--board);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    caret-color: var(--ink);
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+    color: inherit;
+    border-radius: 0;
+  }
+
+  button {
+    cursor: pointer;
+    background: none;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  select {
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+      linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position:
+      calc(100% - 14px) calc(50% - 3px),
+      calc(100% - 9px) calc(50% - 3px);
+    background-repeat: no-repeat;
+    background-size:
+      5px 5px,
+      5px 5px;
+    padding-right: 1.75rem;
+  }
+
+  a {
+    color: inherit;
+  }
 }
 
 ::selection {
@@ -68,21 +109,10 @@ body {
   outline-offset: 3px;
 }
 
-input,
-textarea,
-select,
-button {
-  font: inherit;
-  color: inherit;
-}
-
-input::placeholder {
+input::placeholder,
+textarea::placeholder {
   color: var(--muted);
   opacity: 0.85;
-}
-
-a {
-  color: inherit;
 }
 
 .font-display {
@@ -92,12 +122,12 @@ a {
 .letter-track {
   background-image: repeating-linear-gradient(
     to right,
-    transparent 0 11px,
-    color-mix(in srgb, var(--rail) 28%, transparent) 11px 12px
+    transparent 0 9px,
+    color-mix(in srgb, var(--rail) 48%, transparent) 9px 11px
   );
   background-position: 0 100%;
   background-repeat: no-repeat;
-  background-size: 100% 3px;
+  background-size: 100% 7px;
 }
 
 .menu-leader {
@@ -120,4 +150,31 @@ a {
 
 .board-scroll::-webkit-scrollbar-thumb {
   background: color-mix(in srgb, var(--rail) 55%, transparent);
+}
+
+.menu-row[data-selected='true'] {
+  background: var(--ink);
+  color: var(--board);
+}
+
+.menu-row[data-selected='true'] .text-muted {
+  color: color-mix(in srgb, var(--board) 72%, transparent);
+}
+
+.menu-skeleton {
+  background: color-mix(in srgb, var(--rail) 12%, transparent);
+  animation: board-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes board-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.maplibregl-ctrl-attrib {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  background: color-mix(in srgb, var(--board) 92%, transparent) !important;
+  color: var(--muted) !important;
 }

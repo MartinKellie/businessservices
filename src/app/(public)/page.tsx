@@ -3,10 +3,11 @@ import { PopularCategories } from '@/components/home/popular-categories';
 import { listActiveAreas, listPublicCategories } from '@/lib/services/public';
 
 export default async function HomePage() {
-  const [areas, categories] = await Promise.all([
+  const [areas, popular] = await Promise.all([
     listActiveAreas(),
     listPublicCategories({ popularOnly: true }),
   ]);
+  const categories = popular.length > 0 ? popular : await listPublicCategories();
 
   return (
     <main className="px-4 py-10 sm:px-6 sm:py-16">
@@ -15,9 +16,6 @@ export default async function HomePage() {
       </section>
 
       <section className="mx-auto mt-16 max-w-3xl" aria-labelledby="popular-heading">
-        <h2 id="popular-heading" className="font-display text-3xl font-extrabold uppercase tracking-wide">
-          Lo de siempre
-        </h2>
         <PopularCategories categories={categories} areas={areas} />
       </section>
     </main>

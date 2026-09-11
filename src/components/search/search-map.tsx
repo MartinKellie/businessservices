@@ -6,6 +6,7 @@ import type { MapLayerMouseEvent } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import type { SearchPin } from '@/lib/api-contract';
 import { CUCUTA_CENTER, FALLBACK_MAP_STYLE, mapStyleUrl } from '@/lib/map-style';
+import { usePublicCopy } from '@/lib/use-public-copy';
 
 interface SearchMapProps {
   pins: SearchPin[];
@@ -15,6 +16,7 @@ interface SearchMapProps {
 }
 
 export function SearchMap({ pins, selectedId, onSelect, userLocation }: SearchMapProps) {
+  const { copy } = usePublicCopy();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const onSelectRef = useRef(onSelect);
@@ -63,6 +65,21 @@ export function SearchMap({ pins, selectedId, onSelect, userLocation }: SearchMa
         },
       });
       map.addLayer({
+        id: 'cluster-count',
+        type: 'symbol',
+        source: 'pins',
+        filter: ['has', 'point_count'],
+        layout: {
+          'text-field': ['get', 'point_count_abbreviated'],
+          'text-font': ['Open Sans Regular'],
+          'text-size': 12,
+          'text-allow-overlap': true,
+        },
+        paint: {
+          'text-color': board,
+        },
+      });
+      map.addLayer({
         id: 'unclustered',
         type: 'circle',
         source: 'pins',
@@ -72,6 +89,21 @@ export function SearchMap({ pins, selectedId, onSelect, userLocation }: SearchMa
           'circle-radius': ['case', ['==', ['get', 'id'], selectedRef.current ?? ''], 10, 7],
           'circle-stroke-width': 2,
           'circle-stroke-color': ['case', ['==', ['get', 'id'], selectedRef.current ?? ''], ink, board],
+        },
+      });
+      map.addSource('user', {
+        type: 'geojson',
+        data: userPoint(userLocation),
+      });
+      map.addLayer({
+        id: 'user-dot',
+        type: 'circle',
+        source: 'user',
+        paint: {
+          'circle-color': ink,
+          'circle-radius': 6,
+          'circle-stroke-width': 3,
+          'circle-stroke-color': board,
         },
       });
 
@@ -119,6 +151,15 @@ export function SearchMap({ pins, selectedId, onSelect, userLocation }: SearchMa
 
   useEffect(() => {
     const map = mapRef.current;
+    const source = map?.getSource('user') as maplibregl.GeoJSONSource | undefined;
+    source?.setData(userPoint(userLocation ?? null));
+    if (userLocation) {
+      map?.easeTo({ center: [userLocation.lng, userLocation.lat] });
+    }
+  }, [userLocation]);
+
+  useEffect(() => {
+    const map = mapRef.current;
     if (!map?.getLayer('unclustered')) return;
     const ink = readToken('--ink', '#1a1812');
     const board = readToken('--board', '#f3ead4');
@@ -146,10 +187,10 @@ export function SearchMap({ pins, selectedId, onSelect, userLocation }: SearchMa
 
   return (
     <div className="relative h-full min-h-72 w-full">
-      <div ref={containerRef} className="h-full w-full" role="application" aria-label="Mapa de resultados" />
+      <div ref={containerRef} className="h-full w-full" role="application" aria-label={copy.mapLabel} />
       {mapStyleUrl() ? null : (
-        <p className="pointer-events-none absolute bottom-2 left-2 bg-board/90 px-2 py-1 text-xs text-muted">
-          Mapa de referencia — configura NEXT_PUBLIC_MAP_STYLE_URL para teselas vectoriales.
+        <p className="pointer-events-none absolute bottom-8 left-2 bg-board/90 px-2 py-1 text-xs text-muted md:bottom-2">
+          {copy.mapFallback}
         </p>
       )}
     </div>
@@ -168,5 +209,20 @@ function toCollection(pins: SearchPin[]) {
       geometry: { type: 'Point' as const, coordinates: [pin.lng, pin.lat] },
       properties: { id: pin.businessId, name: pin.name },
     })),
+  };
+}
+
+function userPoint(location: { lat: number; lng: number } | null | undefined) {
+  return {
+    type: 'FeatureCollection' as const,
+    features: location
+      ? [
+          {
+            type: 'Feature' as const,
+            geometry: { type: 'Point' as const, coordinates: [location.lng, location.lat] },
+            properties: {},
+          },
+        ]
+      : [],
   };
 }

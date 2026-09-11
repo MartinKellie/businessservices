@@ -3,7 +3,9 @@
 import { MessageCircle, Phone } from 'lucide-react';
 import { CategoryGlyph } from '@/components/category-glyph';
 import type { SearchCard } from '@/lib/api-contract';
-import { formatDistance, statusLabel, telHref, whatsappHref } from '@/lib/public-format';
+import { formatDistance, telHref, whatsappHref } from '@/lib/public-format';
+import { statusCopy } from '@/lib/public-copy';
+import { usePublicCopy } from '@/lib/use-public-copy';
 
 interface ResultCardProps {
   card: SearchCard;
@@ -13,17 +15,24 @@ interface ResultCardProps {
 }
 
 export function ResultCard({ card, selected, onSelect, children }: ResultCardProps) {
-  const status = statusLabel(card.status);
+  const { copy } = usePublicCopy();
+  const status = statusCopy(copy, card.status);
   const media = card.logoUrl || card.photoUrl;
 
   return (
     <article
       id={`result-${card.id}`}
-      className={`border-b border-rail/20 ${selected ? 'bg-ink text-board' : 'bg-transparent'}`}
+      data-selected={selected ? 'true' : undefined}
+      className="menu-row scroll-mt-3 border-b border-rail/20"
     >
-      <button type="button" onClick={onSelect} className="flex w-full items-start gap-3 px-4 py-4 text-left">
+      <button
+        type="button"
+        onClick={onSelect}
+        aria-expanded={selected}
+        className={`flex w-full items-start gap-3 px-4 py-3.5 text-left ${selected ? '' : 'hover:bg-rail/10'}`}
+      >
         <span
-          className={`flex size-14 shrink-0 items-center justify-center overflow-hidden border ${
+          className={`flex size-10 shrink-0 items-center justify-center overflow-hidden border ${
             selected ? 'border-board/40' : 'border-rail/30'
           }`}
         >
@@ -32,25 +41,25 @@ export function ResultCard({ card, selected, onSelect, children }: ResultCardPro
             // eslint-disable-next-line @next/next/no-img-element
             <img src={media} alt="" className="size-full object-cover" />
           ) : (
-            <CategoryGlyph name={card.primaryCategory?.icon} size={22} />
+            <CategoryGlyph name={card.primaryCategory?.icon} size={18} />
           )}
         </span>
         <span className="min-w-0 flex-1">
           <span className="font-display block text-xl font-extrabold uppercase leading-tight tracking-wide">
             {card.name}
           </span>
-          <span className={`mt-1 block text-sm ${selected ? 'text-board/80' : 'text-muted'}`}>
+          <span className="mt-1 block text-sm text-muted">
             {[card.primaryCategory?.name, card.areaName].filter(Boolean).join(' · ')}
             {card.distanceMeters != null ? ` · ${formatDistance(card.distanceMeters)}` : ''}
           </span>
           {card.serviceAreaNote ? (
-            <span className="mt-1 block text-sm">Zona de servicio: {card.serviceAreaNote}</span>
+            <span className="mt-1 block text-sm">
+              {copy.serviceArea}: {card.serviceAreaNote}
+            </span>
           ) : null}
           <span className="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wide">
-            {card.openStatus === 'open' ? (
-              <span className={selected ? 'text-board' : 'text-signal'}>Abierto</span>
-            ) : null}
-            {card.openStatus === 'closed' ? <span>Cerrado</span> : null}
+            {card.openStatus === 'open' ? <span className="text-signal">{copy.open}</span> : null}
+            {card.openStatus === 'closed' ? <span>{copy.closed}</span> : null}
             {status ? (
               <span className={selected ? 'bg-board px-1.5 text-ink' : 'bg-warn px-1.5 text-warn-ink'}>
                 {status}
@@ -59,7 +68,7 @@ export function ResultCard({ card, selected, onSelect, children }: ResultCardPro
           </span>
         </span>
       </button>
-      <div className="flex flex-wrap gap-2 px-4 pb-4">
+      <div className="flex flex-wrap gap-2 px-4 pb-3.5">
         {card.contact.whatsapp ? (
           <a
             href={whatsappHref(card.contact.whatsapp)}
@@ -79,7 +88,7 @@ export function ResultCard({ card, selected, onSelect, children }: ResultCardPro
             onClick={(event) => event.stopPropagation()}
           >
             <Phone size={16} strokeWidth={2} aria-hidden="true" />
-            Llamar
+            {copy.call}
           </a>
         ) : null}
       </div>

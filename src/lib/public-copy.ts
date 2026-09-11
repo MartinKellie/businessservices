@@ -1,0 +1,196 @@
+/**
+ * Public chrome copy. Spanish is the product language; English exists only as a
+ * development review aid (handoff §1). Directory data is never translated here.
+ */
+
+export const DEV_UI_LOCALE = process.env.NODE_ENV !== 'production';
+
+export type DevUiLocale = 'es' | 'en';
+
+const es = {
+  siteName: 'Directorio de Cúcuta',
+  navMain: 'Principal',
+  about: 'Acerca',
+  advertise: 'Anúnciate',
+  contact: 'Contacto',
+  privacy: 'Privacidad',
+  terms: 'Términos',
+  whatLooking: '¿Qué estás buscando?',
+  searchPlaceholder: 'Dispensador de agua, panadería, taller…',
+  area: 'Zona',
+  nearMe: 'Cerca de mí',
+  locating: 'Obteniendo ubicación…',
+  locatingShort: 'Ubicando…',
+  search: 'Buscar',
+  geoHint: 'Elige tu barrio o usa tu ubicación. Sin cuenta.',
+  geoDeniedHome: 'No se pudo usar tu ubicación. Se usará {area}.',
+  selectedAreaFallback: 'la zona seleccionada',
+  usual: 'Lo de siempre',
+  emptyCategories: 'Nada escrito en el menú todavía. Busca arriba o vuelve más tarde.',
+  businessOne: 'negocio',
+  businessMany: 'negocios',
+  allAreas: 'Todas las zonas',
+  allCategories: 'Todas las categorías',
+  openNow: 'Abierto ahora',
+  category: 'Categoría',
+  nearYou: 'Cerca de ti',
+  resultOne: 'resultado',
+  resultMany: 'resultados',
+  geoDeniedSearch: 'No se pudo usar tu ubicación. Mostrando {area}.',
+  map: 'Mapa',
+  list: 'Lista',
+  both: 'Ambos',
+  panes: 'Paneles',
+  split: 'Ajustar divisor',
+  emptyBoard: 'Nada en el tablero',
+  emptyBoardHint:
+    'Prueba con otras palabras, otra zona, o quita un filtro. El buscador entiende nombres, oficios y cómo se dice por aquí.',
+  closeSheet: 'Cerrar ficha',
+  searching: 'Buscando…',
+  loadResults: 'No se pudieron cargar los resultados.',
+  previous: 'Anterior',
+  next: 'Siguiente',
+  loadingMap: 'Cargando mapa…',
+  mapLabel: 'Mapa de resultados',
+  mapFallback: 'Mapa de referencia',
+  open: 'Abierto',
+  closed: 'Cerrado',
+  serviceArea: 'Zona de servicio',
+  call: 'Llamar',
+  statusTemporarilyClosed: 'Temporalmente cerrado',
+  statusRelocated: 'Movido',
+  statusPermanentlyClosed: 'Cerrado definitivamente',
+  loadingDetail: 'Cargando ficha…',
+  detailMissing: 'No se encontró el negocio.',
+  detailLoadError: 'No se pudieron cargar los detalles.',
+  relocatedNow: 'ahora',
+  dayFallback: 'Día {n}',
+  email: 'Correo',
+  website: 'Sitio',
+  lastUpdated: 'Última actualización',
+  days: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
+  themeSystem: 'Sistema',
+  themeLight: 'Claro',
+  themeDark: 'Oscuro',
+  themeAria: 'Tema: {label}. Cambiar tema',
+  localeAria: 'Idioma de la interfaz: {label}',
+  placeholderSoon: 'Esta página se diseñará en una siguiente tanda.',
+  backHome: 'Volver al inicio',
+  aboutTitle: 'Acerca de',
+  aboutNote: 'Qué es el directorio, para quién es, «Powered by MK1GROUP».',
+  advertiseTitle: 'Anúnciate con nosotros',
+  advertiseNote:
+    'Cómo aparecer en el directorio, opciones mejoradas, contacto con MK1GROUP (gestión manual inicial).',
+  contactTitle: 'Contacto',
+  contactNote:
+    'Formulario con tipos de consulta, casilla de consentimiento obligatoria, subida opcional de logo/foto. Envía a POST /api/enquiries.',
+  privacyTitle: 'Política de Privacidad',
+  privacyNote:
+    'Texto legal en español pendiente (ver scope §43, §47). Debe cubrir formulario de contacto, autenticación admin, ubicación del dispositivo, preferencias locales.',
+  termsTitle: 'Términos y Aviso Legal',
+  termsNote: 'Texto legal en español pendiente (ver scope §43, §47).',
+  maintenanceTitle: 'En mantenimiento',
+  maintenanceMessage:
+    'El directorio está temporalmente en mantenimiento. Vuelve a intentarlo en unos minutos.',
+};
+
+export type PublicCopy = typeof es;
+
+const en: PublicCopy = {
+  siteName: 'Cúcuta Directory',
+  navMain: 'Main',
+  about: 'About',
+  advertise: 'Advertise',
+  contact: 'Contact',
+  privacy: 'Privacy',
+  terms: 'Terms',
+  whatLooking: 'What are you looking for?',
+  searchPlaceholder: 'Water cooler, bakery, garage…',
+  area: 'Area',
+  nearMe: 'Near me',
+  locating: 'Getting location…',
+  locatingShort: 'Locating…',
+  search: 'Search',
+  geoHint: 'Pick your neighbourhood or use your location. No account.',
+  geoDeniedHome: 'Could not use your location. Using {area}.',
+  selectedAreaFallback: 'the selected area',
+  usual: 'The usual',
+  emptyCategories: 'Nothing on the menu yet. Search above or come back later.',
+  businessOne: 'business',
+  businessMany: 'businesses',
+  allAreas: 'All areas',
+  allCategories: 'All categories',
+  openNow: 'Open now',
+  category: 'Category',
+  nearYou: 'Near you',
+  resultOne: 'result',
+  resultMany: 'results',
+  geoDeniedSearch: 'Could not use your location. Showing {area}.',
+  map: 'Map',
+  list: 'List',
+  both: 'Both',
+  panes: 'Panes',
+  split: 'Resize divider',
+  emptyBoard: 'Nothing on the board',
+  emptyBoardHint:
+    'Try other words, another area, or clear a filter. The search understands names, trades, and how people say it locally.',
+  closeSheet: 'Close listing',
+  searching: 'Searching…',
+  loadResults: 'Could not load the results.',
+  previous: 'Previous',
+  next: 'Next',
+  loadingMap: 'Loading map…',
+  mapLabel: 'Results map',
+  mapFallback: 'Reference map',
+  open: 'Open',
+  closed: 'Closed',
+  serviceArea: 'Service area',
+  call: 'Call',
+  statusTemporarilyClosed: 'Temporarily closed',
+  statusRelocated: 'Moved',
+  statusPermanentlyClosed: 'Permanently closed',
+  loadingDetail: 'Loading listing…',
+  detailMissing: 'Business not found.',
+  detailLoadError: 'Could not load the details.',
+  relocatedNow: 'now',
+  dayFallback: 'Day {n}',
+  email: 'Email',
+  website: 'Site',
+  lastUpdated: 'Last updated',
+  days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+  themeSystem: 'System',
+  themeLight: 'Light',
+  themeDark: 'Dark',
+  themeAria: 'Theme: {label}. Change theme',
+  localeAria: 'Interface language: {label}',
+  placeholderSoon: 'This page will be designed in a later round.',
+  backHome: 'Back to the home page',
+  aboutTitle: 'About',
+  aboutNote: 'What the directory is, who it is for, “Powered by MK1GROUP”.',
+  advertiseTitle: 'Advertise with us',
+  advertiseNote:
+    'How to appear in the directory, enhanced options, contact MK1GROUP (manual handling at first).',
+  contactTitle: 'Contact',
+  contactNote:
+    'Form with enquiry types, required consent checkbox, optional logo/photo upload. Posts to POST /api/enquiries.',
+  privacyTitle: 'Privacy Policy',
+  privacyNote:
+    'Spanish legal copy still pending (scope §43, §47). Must cover the contact form, admin authentication, device location, and local preferences.',
+  termsTitle: 'Terms and Disclaimer',
+  termsNote: 'Spanish legal copy still pending (scope §43, §47).',
+  maintenanceTitle: 'Under maintenance',
+  maintenanceMessage: 'The directory is temporarily under maintenance. Please try again in a few minutes.',
+};
+
+export const PUBLIC_COPY: Record<DevUiLocale, PublicCopy> = { es, en };
+
+export function fill(template: string, vars: Record<string, string>): string {
+  return template.replace(/\{(\w+)\}/g, (_, key: string) => vars[key] ?? '');
+}
+
+export function statusCopy(copy: PublicCopy, status: string): string | null {
+  if (status === 'temporarily_closed') return copy.statusTemporarilyClosed;
+  if (status === 'relocated') return copy.statusRelocated;
+  if (status === 'permanently_closed') return copy.statusPermanentlyClosed;
+  return null;
+}

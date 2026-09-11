@@ -4,16 +4,17 @@ import { AtSign, ExternalLink, Mail, Users } from 'lucide-react';
 import type { PublicBusiness } from '@/lib/api-contract';
 import { PublicApiError, fetchBusiness } from '@/lib/api-contract';
 import {
-  DAY_NAMES,
   facebookHref,
   formatHour,
   instagramHref,
-  statusLabel,
   websiteHref,
 } from '@/lib/public-format';
+import { fill, statusCopy } from '@/lib/public-copy';
+import { usePublicCopy } from '@/lib/use-public-copy';
 import { useEffect, useState } from 'react';
 
 export function BusinessDetail({ businessId }: { businessId: string }) {
+  const { copy, locale } = usePublicCopy();
   const [business, setBusiness] = useState<PublicBusiness | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -31,39 +32,43 @@ export function BusinessDetail({ businessId }: { businessId: string }) {
         if (cancelled) return;
         setBusiness(null);
         setError(
-          err instanceof PublicApiError ? err.message : 'No se pudieron cargar los detalles.',
+          err instanceof PublicApiError ? err.message : copy.detailLoadError,
         );
         setLoading(false);
       });
     return () => {
       cancelled = true;
     };
-  }, [businessId]);
+  }, [businessId, copy.detailLoadError]);
 
   if (loading) {
-    return <p className="px-4 pb-4 text-sm text-muted">Cargando ficha…</p>;
+    return <p className="px-4 pb-4 text-sm text-muted">{copy.loadingDetail}</p>;
   }
   if (error || !business) {
     return (
       <p className="px-4 pb-4 text-sm" role="alert">
-        {error ?? 'No se encontró el negocio.'}
+        {error ?? copy.detailMissing}
       </p>
     );
   }
 
-  const extraStatus = statusLabel(business.status);
+  const extraStatus = statusCopy(copy, business.status);
   const lastUpdated =
     business.lastUpdatedAt != null
-      ? new Date(business.lastUpdatedAt).toLocaleDateString('es-CO')
+      ? new Date(business.lastUpdatedAt).toLocaleDateString(locale === 'en' ? 'en-GB' : 'es-CO')
       : null;
 
   return (
-    <div className="space-y-3 border-t border-current/15 px-4 pb-5 pt-3 text-sm">
+    <div className="space-y-3 border-t border-current/20 px-4 pb-5 pt-3 text-sm">
       {business.address ? <p>{business.address}</p> : null}
-      {business.serviceAreaNote ? <p>Zona de servicio: {business.serviceAreaNote}</p> : null}
+      {business.serviceAreaNote ? (
+        <p>
+          {copy.serviceArea}: {business.serviceAreaNote}
+        </p>
+      ) : null}
       {business.relocatedTo ? (
         <p>
-          {extraStatus ?? 'Movido'} — ahora:{' '}
+          {extraStatus ?? copy.statusRelocated} — {copy.relocatedNow}:{' '}
           <a href={`/buscar?q=${encodeURIComponent(business.relocatedTo.name)}`} className="underline">
             {business.relocatedTo.name}
           </a>
@@ -76,7 +81,7 @@ export function BusinessDetail({ businessId }: { businessId: string }) {
         <ul className="space-y-0.5">
           {business.openingHours.map((row, index) => (
             <li key={`${row.dayOfWeek}-${row.opensAt}-${index}`} className="flex justify-between gap-4">
-              <span>{DAY_NAMES[row.dayOfWeek - 1] ?? `Día ${row.dayOfWeek}`}</span>
+              <span>{copy.days[row.dayOfWeek - 1] ?? fill(copy.dayFallback, { n: String(row.dayOfWeek) })}</span>
               <span className="tabular-nums">
                 {formatHour(row.opensAt)}–{formatHour(row.closesAt)}
               </span>
@@ -89,7 +94,7 @@ export function BusinessDetail({ businessId }: { businessId: string }) {
         {business.contact.email ? (
           <a href={`mailto:${business.contact.email}`} className="inline-flex items-center gap-1 underline-offset-4 hover:underline">
             <Mail size={14} strokeWidth={2} aria-hidden="true" />
-            Correo
+            {copy.email}
           </a>
         ) : null}
         {business.contact.website ? (
@@ -100,7 +105,7 @@ export function BusinessDetail({ businessId }: { businessId: string }) {
             className="inline-flex items-center gap-1 underline-offset-4 hover:underline"
           >
             <ExternalLink size={14} strokeWidth={2} aria-hidden="true" />
-            Sitio
+            {copy.website}
           </a>
         ) : null}
         {business.contact.instagram ? (
@@ -136,7 +141,11 @@ export function BusinessDetail({ businessId }: { businessId: string }) {
         </div>
       ) : null}
 
-      {lastUpdated ? <p className="text-xs opacity-80">Última actualización: {lastUpdated}</p> : null}
+      {lastUpdated ? (
+        <p className="text-xs opacity-80">
+          {copy.lastUpdated}: {lastUpdated}
+        </p>
+      ) : null}
     </div>
   );
 }
