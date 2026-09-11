@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { MapPin, Navigation } from 'lucide-react';
 import type { PublicArea } from '@/lib/api-contract';
 import { searchQueryToParams } from '@/lib/api-contract';
+import { GeocodeField } from '@/components/public/geocode-field';
 import { fill } from '@/lib/public-copy';
 import { PREF } from '@/lib/preferences';
 import { usePreference } from '@/lib/use-preference';
@@ -115,6 +116,12 @@ export function HomeSearch({ areas }: { areas: PublicArea[] }) {
           {copy.search}
         </button>
       </div>
+      <GeocodeField
+        onPick={(hit) => {
+          setGeoState('idle');
+          goToSearch({ lat: hit.lat, lng: hit.lng });
+        }}
+      />
       {geoState === 'denied' ? (
         <p className="mt-3 text-sm text-warn" role="status">
           {fill(copy.geoDeniedHome, {

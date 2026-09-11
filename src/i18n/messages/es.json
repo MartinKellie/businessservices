@@ -11,6 +11,12 @@
       "save": "Guardar",
       "cancel": "Cancelar",
       "delete": "Eliminar"
+    },
+    "signIn": {
+      "title": "Acceso al panel",
+      "blurb": "Solo para cuentas autorizadas de MK1GROUP.",
+      "continueGoogle": "Continuar con Google",
+      "error": "No se pudo iniciar sesión, o la cuenta no tiene acceso al panel."
     }
   }
 }

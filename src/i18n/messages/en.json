@@ -11,6 +11,12 @@
       "save": "Save",
       "cancel": "Cancel",
       "delete": "Delete"
+    },
+    "signIn": {
+      "title": "Staff sign-in",
+      "blurb": "Only for authorised MK1GROUP accounts.",
+      "continueGoogle": "Continue with Google",
+      "error": "Sign-in failed, or this account does not have access to the panel."
     }
   }
 }

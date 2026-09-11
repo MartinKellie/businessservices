@@ -37,7 +37,7 @@ Search is not name-only. Queries match businesses, categories, shared product/se
 
 Confirmed:
 
-- Public routes: `/` (search-first homepage), `/buscar` (map + list), static About / Advertise / Contact / legal (placeholders this slice).
+- Public routes: `/` (search-first homepage), `/buscar` (map + list), About, Advertise, Contact (live enquiry form), legal topic pages (official copy still pending), cookie notice.
 - Public APIs: `GET /api/search`, `/api/areas`, `/api/categories`, `/api/businesses/:id`, `/api/settings/public`; `POST /api/enquiries`.
 - Homepage: dominant search, area selector, “Cerca de mí”, popular categories, optional text-only announcement banner. No featured businesses.
 - Result cards: name, categories, area, logo/photo or category icon, open/closed when hours known, contact actions, status labels. Full address only after expand or pin interaction.

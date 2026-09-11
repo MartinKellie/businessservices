@@ -2,8 +2,9 @@
 
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { List, Map as MapIcon, Navigation } from 'lucide-react';
+import { GeocodeField } from '@/components/public/geocode-field';
 import { BusinessDetail } from '@/components/search/business-detail';
 import { ResultCard } from '@/components/search/result-card';
 import type { PublicArea, PublicCategory, SearchQuery, SearchResult } from '@/lib/api-contract';
@@ -56,6 +57,7 @@ export function SearchScreen({
   const [error, setError] = useState<string | null>(initialError);
   const [fetchedKey, setFetchedKey] = useState(queryKeyOf(initialQuery));
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [storedSplit, setStoredSplit] = usePreference(PREF.desktopSplit);
   const [storedPane, setStoredPane] = usePreference(PREF.desktopPane);
   const [storedMobile, setStoredMobile] = usePreference(PREF.mobileView);
@@ -159,6 +161,16 @@ export function SearchScreen({
   const area = areas.find((item) => item.id === effectiveQuery.areaId);
   const category = categories.find((item) => item.id === effectiveQuery.categoryId);
   const usingNearMe = effectiveQuery.lat != null && effectiveQuery.lng != null;
+  // Memoised by value: SearchMap's camera effect keys off this reference, and a new
+  // object every render (from an inline literal) would re-trigger it on any unrelated
+  // re-render (filter toggle, card select, divider drag) while in near-me mode.
+  const userLocation = useMemo(
+    () =>
+      usingNearMe && effectiveQuery.lat != null && effectiveQuery.lng != null
+        ? { lat: effectiveQuery.lat, lng: effectiveQuery.lng }
+        : null,
+    [usingNearMe, effectiveQuery.lat, effectiveQuery.lng],
+  );
   const contextLabel = usingNearMe
     ? `${copy.nearYou}${result?.appliedRadiusMeters ? ` (${Math.round(result.appliedRadiusMeters / 1000)} km)` : ''}`
     : area?.name ?? copy.allAreas;
@@ -183,6 +195,9 @@ export function SearchScreen({
           card={card}
           selected={selectedId === card.id}
           onSelect={() => selectBusiness(card.id, 'list')}
+          onHoverChange={(hovering) =>
+            setHoveredId((prev) => (hovering ? card.id : prev === card.id ? null : prev))
+          }
         >
           {selectedId === card.id ? <BusinessDetail key={card.id} businessId={card.id} /> : null}
         </ResultCard>
@@ -203,12 +218,9 @@ export function SearchScreen({
       <SearchMap
         pins={result?.pins ?? []}
         selectedId={selectedId}
+        hoveredId={hoveredId}
         onSelect={(id) => selectBusiness(id, 'map')}
-        userLocation={
-          usingNearMe && effectiveQuery.lat != null && effectiveQuery.lng != null
-            ? { lat: effectiveQuery.lat, lng: effectiveQuery.lng }
-            : null
-        }
+        userLocation={userLocation}
       />
       {sheetOpen && selectedId && mobileView === 'map' ? (
         <div className="absolute inset-x-0 bottom-0 max-h-[70%] overflow-y-auto border-t-2 border-ink bg-board shadow-[0_-8px_24px_rgb(0_0_0_/_0.18)] md:hidden">
@@ -294,6 +306,21 @@ export function SearchScreen({
               <Navigation size={16} strokeWidth={2} aria-hidden="true" />
               {geoAsking ? copy.locatingShort : copy.nearMe}
             </button>
+          </div>
+          <div className="min-w-0 basis-full sm:max-w-md sm:basis-auto">
+            <GeocodeField
+              compact
+              onPick={(hit) => {
+                setGeoDenied(false);
+                replaceQuery({
+                  ...query,
+                  lat: hit.lat,
+                  lng: hit.lng,
+                  areaId: undefined,
+                  page: 1,
+                });
+              }}
+            />
           </div>
           <FilterChip
             active={Boolean(query.openNow)}

@@ -1,12 +1,14 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { LocaleToggle } from '@/components/public/locale-toggle';
 import { ThemeToggleSlot } from '@/components/public/theme-toggle-slot';
 import { usePublicCopy } from '@/lib/use-public-copy';
 
-export function SiteHeader({ compact = false }: { compact?: boolean }) {
+export function SiteHeader() {
   const { copy } = usePublicCopy();
+  const pathname = usePathname();
   const nav = [
     { href: '/acerca', label: copy.about },
     { href: '/anunciate', label: copy.advertise },
@@ -18,18 +20,24 @@ export function SiteHeader({ compact = false }: { compact?: boolean }) {
       <Link href="/" className="font-display text-lg font-extrabold uppercase tracking-wide sm:text-xl md:text-2xl">
         {copy.siteName}
       </Link>
-      <nav className="flex items-center gap-2 sm:gap-3" aria-label={copy.navMain}>
-        {compact
-          ? null
-          : nav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="hidden text-sm underline-offset-4 hover:underline md:inline"
-              >
-                {item.label}
-              </Link>
-            ))}
+      <nav className="flex flex-wrap items-center justify-end gap-2 sm:gap-3" aria-label={copy.navMain}>
+        {nav.map((item) => {
+          const current = pathname === item.href;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={current ? 'page' : undefined}
+              className={
+                current
+                  ? 'bg-ink px-2 py-1 text-sm text-board'
+                  : 'px-2 py-1 text-sm underline-offset-4 hover:underline'
+              }
+            >
+              {item.label}
+            </Link>
+          );
+        })}
         <LocaleToggle />
         <ThemeToggleSlot />
       </nav>

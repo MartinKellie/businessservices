@@ -1,5 +1,10 @@
-import { PlaceholderScreen } from '@/components/placeholder-screen';
+import type { Metadata } from 'next';
+import { AboutPage } from '@/components/public/about-page';
 
-export default function AboutPage() {
-  return <PlaceholderScreen titleKey="aboutTitle" noteKey="aboutNote" />;
+export const metadata: Metadata = {
+  title: 'Acerca de · Directorio de Cúcuta',
+};
+
+export default function AboutRoute() {
+  return <AboutPage />;
 }

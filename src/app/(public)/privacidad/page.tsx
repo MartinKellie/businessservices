@@ -1,5 +1,10 @@
-import { PlaceholderScreen } from '@/components/placeholder-screen';
+import type { Metadata } from 'next';
+import { LegalPage } from '@/components/public/legal-page';
 
-export default function PrivacyPage() {
-  return <PlaceholderScreen titleKey="privacyTitle" noteKey="privacyNote" />;
+export const metadata: Metadata = {
+  title: 'Privacidad · Directorio de Cúcuta',
+};
+
+export default function PrivacyRoute() {
+  return <LegalPage kind="privacy" />;
 }

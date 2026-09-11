@@ -1,4 +1,5 @@
 import type { ApiError } from '@/lib/http';
+import type { EnquiryType } from '@/lib/public-copy';
 
 /** Public area row from GET /api/areas. */
 export interface PublicArea {
@@ -142,6 +143,21 @@ export async function fetchCategories(popular = false): Promise<PublicCategory[]
   return data.categories;
 }
 
+export interface GeocodeHit {
+  label: string;
+  lat: number;
+  lng: number;
+}
+
+/** Typed address/area lookup for Near me without device geolocation. */
+export async function fetchGeocode(q: string): Promise<GeocodeHit[]> {
+  const params = new URLSearchParams({ q });
+  const data = await readJson<{ results: GeocodeHit[] }>(
+    await fetch(`/api/geocode?${params.toString()}`, { cache: 'no-store' }),
+  );
+  return data.results;
+}
+
 export function searchQueryToParams(query: SearchQuery): URLSearchParams {
   const params = new URLSearchParams();
   if (query.q) params.set('q', query.q);
@@ -168,6 +184,52 @@ export async function fetchBusiness(idOrSlug: string): Promise<PublicBusiness> {
     await fetch(`/api/businesses/${encodeURIComponent(idOrSlug)}`, { cache: 'no-store' }),
   );
   return data.business;
+}
+
+export interface EnquiryPayload {
+  type: EnquiryType;
+  name: string;
+  email: string;
+  phone?: string;
+  message: string;
+  businessReference?: string;
+  consent: true;
+  company?: string;
+  file?: File | null;
+}
+
+export async function submitEnquiry(input: EnquiryPayload): Promise<{ ok: true; id: string | null }> {
+  const hasFile = Boolean(input.file && input.file.size > 0);
+  if (hasFile && input.file) {
+    const form = new FormData();
+    form.set('type', input.type);
+    form.set('name', input.name);
+    form.set('email', input.email);
+    form.set('message', input.message);
+    form.set('consent', 'true');
+    if (input.phone) form.set('phone', input.phone);
+    if (input.businessReference) form.set('businessReference', input.businessReference);
+    if (input.company) form.set('company', input.company);
+    form.set('file', input.file);
+    return readJson(await fetch('/api/enquiries', { method: 'POST', body: form }));
+  }
+
+  return readJson(
+    await fetch('/api/enquiries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: input.type,
+        name: input.name,
+        email: input.email,
+        message: input.message,
+        consent: true,
+        ...(input.phone ? { phone: input.phone } : {}),
+        ...(input.businessReference ? { businessReference: input.businessReference } : {}),
+        ...(input.company ? { company: input.company } : {}),
+      }),
+    }),
+  );
 }
 
 export function parseSearchParams(searchParams: Record<string, string | string[] | undefined>): SearchQuery {

@@ -1,5 +1,10 @@
-import { PlaceholderScreen } from '@/components/placeholder-screen';
+import type { Metadata } from 'next';
+import { LegalPage } from '@/components/public/legal-page';
 
-export default function TermsPage() {
-  return <PlaceholderScreen titleKey="termsTitle" noteKey="termsNote" />;
+export const metadata: Metadata = {
+  title: 'Términos · Directorio de Cúcuta',
+};
+
+export default function TermsRoute() {
+  return <LegalPage kind="terms" />;
 }

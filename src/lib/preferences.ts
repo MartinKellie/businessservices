@@ -10,7 +10,32 @@ export const PREF = {
   mobileView: 'pref.mobileView',
   theme: 'pref.theme',
   devUiLocale: 'pref.devUiLocale',
+  cookies: 'consent.cookies',
 } as const;
+
+export interface CookieConsent {
+  necessary: true;
+  decidedAt: string;
+}
+
+export function parseCookieConsent(raw: string | null): CookieConsent | null {
+  if (!raw) return null;
+  try {
+    const value = JSON.parse(raw) as Partial<CookieConsent>;
+    if (value?.necessary === true && typeof value.decidedAt === 'string') {
+      return { necessary: true, decidedAt: value.decidedAt };
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+export function writeCookieConsent(): CookieConsent {
+  const value: CookieConsent = { necessary: true, decidedAt: new Date().toISOString() };
+  writePreference(PREF.cookies, JSON.stringify(value));
+  return value;
+}
 
 export type ThemePreference = 'system' | 'light' | 'dark';
 export type DesktopPane = 'none' | 'map' | 'list';

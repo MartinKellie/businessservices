@@ -13,21 +13,25 @@ interface SearchMapProps {
   selectedId: string | null;
   onSelect: (businessId: string) => void;
   userLocation?: { lat: number; lng: number } | null;
+  /** Result-card hover/focus, distinct from a click (`selectedId`) — paint only, no pan. */
+  hoveredId?: string | null;
 }
 
-export function SearchMap({ pins, selectedId, onSelect, userLocation }: SearchMapProps) {
+export function SearchMap({ pins, selectedId, onSelect, userLocation, hoveredId = null }: SearchMapProps) {
   const { copy } = usePublicCopy();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const onSelectRef = useRef(onSelect);
   const pinsRef = useRef(pins);
   const selectedRef = useRef(selectedId);
+  const hoveredRef = useRef(hoveredId);
 
   useEffect(() => {
     onSelectRef.current = onSelect;
     pinsRef.current = pins;
     selectedRef.current = selectedId;
-  }, [onSelect, pins, selectedId]);
+    hoveredRef.current = hoveredId;
+  }, [onSelect, pins, selectedId, hoveredId]);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -44,6 +48,8 @@ export function SearchMap({ pins, selectedId, onSelect, userLocation }: SearchMa
     map.on('load', () => {
       const ink = readToken('--ink', '#1a1812');
       const board = readToken('--board', '#f3ead4');
+      const signal = readToken('--signal', '#0d6b38');
+      const signalInk = readToken('--signal-ink', '#f4fff4');
 
       map.addSource('pins', {
         type: 'geojson',
@@ -85,10 +91,37 @@ export function SearchMap({ pins, selectedId, onSelect, userLocation }: SearchMa
         source: 'pins',
         filter: ['!', ['has', 'point_count']],
         paint: {
-          'circle-color': ['case', ['==', ['get', 'id'], selectedRef.current ?? ''], board, ink],
-          'circle-radius': ['case', ['==', ['get', 'id'], selectedRef.current ?? ''], 10, 7],
+          'circle-color': [
+            'case',
+            [
+              'any',
+              ['==', ['get', 'id'], selectedRef.current ?? ''],
+              ['==', ['get', 'id'], hoveredRef.current ?? ''],
+            ],
+            board,
+            ink,
+          ],
+          'circle-radius': [
+            'case',
+            [
+              'any',
+              ['==', ['get', 'id'], selectedRef.current ?? ''],
+              ['==', ['get', 'id'], hoveredRef.current ?? ''],
+            ],
+            10,
+            7,
+          ],
           'circle-stroke-width': 2,
-          'circle-stroke-color': ['case', ['==', ['get', 'id'], selectedRef.current ?? ''], ink, board],
+          'circle-stroke-color': [
+            'case',
+            [
+              'any',
+              ['==', ['get', 'id'], selectedRef.current ?? ''],
+              ['==', ['get', 'id'], hoveredRef.current ?? ''],
+            ],
+            ink,
+            board,
+          ],
         },
       });
       map.addSource('user', {
@@ -100,10 +133,12 @@ export function SearchMap({ pins, selectedId, onSelect, userLocation }: SearchMa
         type: 'circle',
         source: 'user',
         paint: {
-          'circle-color': ink,
-          'circle-radius': 6,
+          // Distinct from business pins (ink/board) so "you are here" never reads as a
+          // result.
+          'circle-color': signal,
+          'circle-radius': 7,
           'circle-stroke-width': 3,
-          'circle-stroke-color': board,
+          'circle-stroke-color': signalInk,
         },
       });
 
@@ -153,10 +188,19 @@ export function SearchMap({ pins, selectedId, onSelect, userLocation }: SearchMa
     const map = mapRef.current;
     const source = map?.getSource('user') as maplibregl.GeoJSONSource | undefined;
     source?.setData(userPoint(userLocation ?? null));
-    if (userLocation) {
-      map?.easeTo({ center: [userLocation.lng, userLocation.lat] });
-    }
-  }, [userLocation]);
+    if (!map || !userLocation) return;
+
+    // Zoom in close to the picked address/"Cerca de mí" location, widening only as far
+    // as needed to also frame nearby result pins — a previous manual zoom-out otherwise
+    // persists across a new location. `maxZoom` caps how close a single/no-pin case
+    // zooms in, since a degenerate (point-only) bounds has no natural zoom limit.
+    const bounds = new maplibregl.LngLatBounds(
+      [userLocation.lng, userLocation.lat],
+      [userLocation.lng, userLocation.lat],
+    );
+    for (const pin of pins) bounds.extend([pin.lng, pin.lat]);
+    map.fitBounds(bounds, { padding: 64, maxZoom: 15, duration: 600 });
+  }, [userLocation, pins]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -165,22 +209,29 @@ export function SearchMap({ pins, selectedId, onSelect, userLocation }: SearchMa
     const board = readToken('--board', '#f3ead4');
     map.setPaintProperty('unclustered', 'circle-color', [
       'case',
-      ['==', ['get', 'id'], selectedId ?? ''],
+      ['any', ['==', ['get', 'id'], selectedId ?? ''], ['==', ['get', 'id'], hoveredId ?? '']],
       board,
       ink,
     ]);
     map.setPaintProperty('unclustered', 'circle-radius', [
       'case',
-      ['==', ['get', 'id'], selectedId ?? ''],
+      ['any', ['==', ['get', 'id'], selectedId ?? ''], ['==', ['get', 'id'], hoveredId ?? '']],
       10,
       7,
     ]);
     map.setPaintProperty('unclustered', 'circle-stroke-color', [
       'case',
-      ['==', ['get', 'id'], selectedId ?? ''],
+      ['any', ['==', ['get', 'id'], selectedId ?? ''], ['==', ['get', 'id'], hoveredId ?? '']],
       ink,
       board,
     ]);
+  }, [selectedId, hoveredId]);
+
+  // Deliberately separate from the paint effect above: a card hover must never pan the
+  // map (it'd be jarring while scrolling the list), only a click (selectedId) should.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
     const pin = pins.find((item) => item.businessId === selectedId);
     if (pin) map.easeTo({ center: [pin.lng, pin.lat], padding: { bottom: 80 } });
   }, [selectedId, pins]);

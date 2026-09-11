@@ -19,10 +19,10 @@ Primary action: type a need and go to `/buscar`. Proof is the search itself plus
 Neighbourhood letter-board / menú del día (seed 5a80b1e9, form #7). Search is the changeable letter track. Categories are today's dishes. One reserved signal colour for WhatsApp / open. Filters later inherit as governing swatches.
 
 ## Scope
-Production homepage against live APIs. Chrome (header, footer, theme, announcement). Not building About, Contact, legal, cookie panel, or admin.
+Production homepage against live APIs. Chrome (header, footer, theme, announcement, cookie rail). About, Contact, Advertise, legal and cookies live on sibling public routes.
 
 ## States
-Loading areas/categories; empty popular list; geolocation grant / deny / fail with obvious area fallback; announcement on/off; maintenance (layout).
+Loading areas/categories; empty popular list; geolocation grant / deny / fail with obvious area fallback; typed address geocode (one hit / pick from several / no match / 429 / 503); announcement on/off; maintenance (layout).
 
 ## Interaction
 Search dominates the first viewport. Area + Cerca de mí sit on the board's location strip. Category rows navigate with `categoryId`. Theme toggle in chrome.

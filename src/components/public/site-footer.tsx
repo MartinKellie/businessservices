@@ -1,10 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { useCookieConsent } from '@/components/public/cookie-consent';
 import { usePublicCopy } from '@/lib/use-public-copy';
 
 export function SiteFooter() {
   const { copy } = usePublicCopy();
+  const { openPanel } = useCookieConsent();
 
   return (
     <footer className="border-t border-rail/25 px-4 py-5 text-sm text-muted sm:px-6">
@@ -29,8 +31,12 @@ export function SiteFooter() {
           <Link href="/terminos" className="underline-offset-4 hover:underline">
             {copy.terms}
           </Link>
+          <span aria-hidden="true"> · </span>
+          <button type="button" onClick={openPanel} className="underline-offset-4 hover:underline">
+            {copy.cookies}
+          </button>
         </p>
-        <p className="text-xs tracking-wide uppercase">Powered by MK1GROUP</p>
+        <p className="text-xs tracking-wide uppercase">{copy.poweredBy}</p>
       </div>
     </footer>
   );

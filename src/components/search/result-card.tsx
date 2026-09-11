@@ -11,10 +11,12 @@ interface ResultCardProps {
   card: SearchCard;
   selected: boolean;
   onSelect: () => void;
+  /** Card hover/keyboard-focus, so the matching map pin can highlight without selecting it. */
+  onHoverChange?: (hovering: boolean) => void;
   children?: React.ReactNode;
 }
 
-export function ResultCard({ card, selected, onSelect, children }: ResultCardProps) {
+export function ResultCard({ card, selected, onSelect, onHoverChange, children }: ResultCardProps) {
   const { copy } = usePublicCopy();
   const status = statusCopy(copy, card.status);
   const media = card.logoUrl || card.photoUrl;
@@ -23,6 +25,10 @@ export function ResultCard({ card, selected, onSelect, children }: ResultCardPro
     <article
       id={`result-${card.id}`}
       data-selected={selected ? 'true' : undefined}
+      onMouseEnter={() => onHoverChange?.(true)}
+      onMouseLeave={() => onHoverChange?.(false)}
+      onFocus={() => onHoverChange?.(true)}
+      onBlur={() => onHoverChange?.(false)}
       className="menu-row scroll-mt-3 border-b border-rail/20"
     >
       <button

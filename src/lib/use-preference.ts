@@ -18,6 +18,15 @@ function emit() {
   for (const listener of listeners) listener();
 }
 
+/** True once mounted on the client. Server/first-paint snapshot is `false` (no mismatch). */
+export function useHydrated(): boolean {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+}
+
 export function usePreference(key: string): [string | null, (value: string) => void] {
   const value = useSyncExternalStore(
     subscribe,
