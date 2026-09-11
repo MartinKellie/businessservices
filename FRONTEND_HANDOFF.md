@@ -75,11 +75,11 @@ British English in code comments and docs; **all public UI copy is Spanish**.
 |---|---|---|
 | `/` | Homepage | search-first; area selector; “Cerca de mí”; popular categories; announcement banner; About/Advertise/contact links; “Powered by MK1GROUP” |
 | `/buscar` | Search results | map + list; the core screen (see §5) |
-| `/acerca` | About | static content |
-| `/anunciate` | Advertise with us | static content + contact/WhatsApp route |
+| `/acerca` | About | what it is, who it is for, how to use it, Powered by MK1GROUP |
+| `/anunciate` | Advertise with us | how to be listed, enhanced options (manual), contact form CTAs |
 | `/contacto` | Public contact form | see §7 |
-| `/privacidad` | Privacy Policy | content TBD (legal copy unresolved) |
-| `/terminos` | Terms / Disclaimer | content TBD |
+| `/privacidad` | Privacy Policy | covering copy for scoped topics; official legal wording still pending |
+| `/terminos` | Terms / Disclaimer | covering copy for scoped topics; official legal wording still pending |
 | `/admin` | Admin dashboard | bilingual; behind Google auth (see §8) |
 
 Cookie banner + preferences panel: global on the public site (not a route).
@@ -96,6 +96,14 @@ on (see §9); `/admin` stays reachable.
 - “Cerca de mí” action: request device geolocation. On grant, searches use the device
   coordinates + the global radius. On denial/failure, fall back to the selected area. Make
   the permission state and fallback obvious to the user.
+- Address/area text input, alongside “Cerca de mí”, for users who deny or don't have
+  device geolocation: `GET /api/geocode?q=<text>` (live) → `{ results: [{ label, lat, lng }]
+  }`, up to 5 candidates, resolve-on-submit (no autocomplete-as-you-type in MVP — post-MVP
+  candidate). If exactly one result, or the user picks one from several, use that
+  `lat`/`lng` exactly like a device-location result (same radius, same downstream
+  `/api/search` params). Empty/no-match results should read as "no encontramos esa
+  dirección", not an error. Same `503` during Maintenance Mode and `429` rate-limit shape
+  as other public endpoints (see §12's error shape).
 - Popular/browsable categories: `GET /api/categories?popular=1` (omit `popular` for all)
   → `{ categories: [{ id, name, slug, icon, isPopular, businessCount }] }`. `icon` is a
   lucide key. Each links to `/buscar?categoryId=…`.
@@ -330,7 +338,7 @@ designs the screen; the copy is `MAINTENANCE_MESSAGE` from `src/lib/maintenance.
 
 Tracked in the scope (§47); none block layout/interaction work:
 
-- Final Spanish copy for legal pages, About, Advertise, maintenance message.
+- Final Spanish copy for legal pages (covering text is live; formal wording still pending), About, Advertise, maintenance message.
 - Exact image type/size limits (will be provided as a constants module).
 - Exact “Cerca de mí” radius (comes from settings at runtime).
 - Brand name / domain.
@@ -460,3 +468,8 @@ read-only `id, slug, status, lastVerifiedAt` columns.
   job (`GET /api/cron/retention`, bearer-secret gated, see `vercel.json`) that soft-deletes
   enquiries past the retention period and hard-deletes plus purges unpromoted upload blobs
   past the grace period.
+- **Public board pages:** `/acerca`, `/anunciate`, `/contacto`, `/privacidad` and `/terminos`
+  are designed in the letter-board world. Contact posts to `POST /api/enquiries`. Privacy and
+  terms carry factual covering copy; official legal wording remains pending.
+- **Phase 9:** `GET /api/geocode` (scope §10) — resolves a typed address/area to
+  coordinates via Nominatim, so "Near me" works without device geolocation. See §4.

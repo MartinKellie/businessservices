@@ -189,15 +189,21 @@ For businesses such as plumbers, mobile mechanics or other services without a pu
 
 ### “Near me”
 
-The MVP should support optional device location.
+The MVP should support both device location and a typed address/area, so a user is never
+stuck if they deny (or don't have) device geolocation.
 
 Behaviour:
 
-- User grants location permission.
-- Search shows the closest relevant businesses within a fixed radius.
-- The radius is set globally in System Settings.
-- Users cannot change the radius in the MVP.
-- If location permission is denied, fall back to the manually selected area/community.
+- Primary path: user grants location permission; search shows the closest relevant
+  businesses within a fixed radius.
+- Alternative path: user types an address or area into a text field; it resolves to a
+  point via geocoding, and search proceeds exactly as if that were the device location.
+  MVP resolves on submit (no live autocomplete-as-you-type); autocomplete is a
+  post-MVP candidate (see §46).
+- The radius is set globally in System Settings and applies the same way regardless of
+  which path supplied the point. Users cannot change the radius in the MVP.
+- If location permission is denied and no address is entered, fall back to the manually
+  selected area/community.
 
 ---
 
@@ -968,6 +974,8 @@ The following are deliberately excluded from MVP:
 
 Likely later additions include:
 
+- Live autocomplete suggestions on the "Near me" address/area input (§10), rather than
+  resolve-on-submit.
 - Voice search.
 - SEO/indexable business pages.
 - Business self-management.

@@ -33,6 +33,9 @@ const schema = z.object({
 
   // Secret required to invoke scheduled maintenance endpoints (Vercel Cron).
   CRON_SECRET: z.string().min(1).optional(),
+
+  // Contact identification required by the Nominatim usage policy (geocoding "Near me").
+  GEOCODE_CONTACT_EMAIL: z.string().email().optional(),
 });
 
 export type Env = z.infer<typeof schema>;
