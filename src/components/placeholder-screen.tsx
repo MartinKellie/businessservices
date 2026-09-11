@@ -1,19 +1,19 @@
 import Link from 'next/link';
 
 /**
- * Temporary scaffold screen. Every public and admin screen is handed to Cursor
- * for design and implementation (see FRONTEND_HANDOFF.md). These placeholders
- * only exist so routing, layouts, middleware and API wiring can be built and
- * tested in parallel.
+ * Temporary scaffold screen for routes not yet designed (About, Advertise,
+ * Contact, legal). Public chrome comes from the public layout.
  */
 export function PlaceholderScreen({ title, note }: { title: string; note?: string }) {
   return (
-    <main style={{ padding: '2rem', maxWidth: '40rem', margin: '0 auto' }}>
-      <h1>{title}</h1>
-      <p>Pantalla pendiente de implementación por Cursor.</p>
-      {note ? <p>{note}</p> : null}
-      <p>
-        <Link href="/">Inicio</Link>
+    <main className="mx-auto max-w-xl px-4 py-16 sm:px-6">
+      <h1 className="font-display text-4xl font-extrabold uppercase tracking-wide">{title}</h1>
+      <p className="mt-4 text-muted">Esta página se diseñará en una siguiente tanda.</p>
+      {note ? <p className="mt-3 text-sm text-muted">{note}</p> : null}
+      <p className="mt-8">
+        <Link href="/" className="underline-offset-4 hover:underline">
+          Volver al inicio
+        </Link>
       </p>
     </main>
   );

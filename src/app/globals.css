@@ -1,9 +1,44 @@
-/*
- * Minimal reset only. Full styling, theming (light/dark, system default with
- * local override) and design are owned by Cursor — see FRONTEND_HANDOFF.md.
- */
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --font-sans: var(--font-body), 'Atkinson Hyperlegible', system-ui, sans-serif;
+  --font-display: var(--font-board), 'Big Shoulders', sans-serif;
+  --color-board: var(--board);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-rail: var(--rail);
+  --color-signal: var(--signal);
+  --color-signal-ink: var(--signal-ink);
+  --color-warn: var(--warn);
+  --color-warn-ink: var(--warn-ink);
+}
+
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
+  --board: #f3ead4;
+  --ink: #1a1812;
+  --muted: #3f382c;
+  --rail: #2a2418;
+  --signal: #0d6b38;
+  --signal-ink: #f4fff4;
+  --warn: #8a3d0b;
+  --warn-ink: #fff6ea;
+  --focus: #0d6b38;
+}
+
+.dark {
+  color-scheme: dark;
+  --board: #161910;
+  --ink: #f3ead4;
+  --muted: #c9bda0;
+  --rail: #d8cba8;
+  --signal: #3dcc6a;
+  --signal-ink: #06210f;
+  --warn: #e8b15a;
+  --warn-ink: #1a1206;
+  --focus: #3dcc6a;
 }
 
 * {
@@ -13,15 +48,76 @@
 html,
 body {
   margin: 0;
-  padding: 0;
+  min-height: 100%;
 }
 
 body {
-  font-family:
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
+  background: var(--board);
+  color: var(--ink);
+  font-family: var(--font-sans);
   line-height: 1.5;
+}
+
+::selection {
+  background: var(--signal);
+  color: var(--signal-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+input,
+textarea,
+select,
+button {
+  font: inherit;
+  color: inherit;
+}
+
+input::placeholder {
+  color: var(--muted);
+  opacity: 0.85;
+}
+
+a {
+  color: inherit;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.letter-track {
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent 0 11px,
+    color-mix(in srgb, var(--rail) 28%, transparent) 11px 12px
+  );
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 100% 3px;
+}
+
+.menu-leader {
+  background-image: radial-gradient(currentColor 1px, transparent 1.2px);
+  background-position: 0 70%;
+  background-repeat: repeat-x;
+  background-size: 8px 3px;
+  opacity: 0.45;
+}
+
+.board-scroll {
+  scrollbar-color: var(--rail) transparent;
+  scrollbar-width: thin;
+}
+
+.board-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.board-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--rail) 55%, transparent);
 }

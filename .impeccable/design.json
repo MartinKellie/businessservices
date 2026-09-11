@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-11T04:35:00+01:00",
+  "title": "Design System: Directorio de Cúcuta",
+  "extensions": {
+    "colorMeta": {
+      "board-light": { "role": "neutral", "displayName": "Enamel board", "canonical": "#f3ead4" },
+      "ink-light": { "role": "neutral", "displayName": "Board ink", "canonical": "#1a1812" },
+      "signal-light": { "role": "primary", "displayName": "Reserved mark", "canonical": "#0d6b38" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Letter-board", "purpose": "Headlines and search rail." },
+      "body": { "displayName": "Board body", "purpose": "Spanish UI copy." }
+    },
+    "shadows": [
+      { "name": "sheet", "value": "0 -8px 24px rgb(0 0 0 / 0.18)", "purpose": "Mobile detail sheet only." }
+    ],
+    "motion": [
+      { "name": "ease-out", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Map ease and invert." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Inverted board action.",
+      "html": "<button class=\"ds-btn-primary\">BUSCAR</button>",
+      "css": ".ds-btn-primary { background: var(--ink); color: var(--board); padding: 10px 24px; border: none; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; } .ds-btn-primary:hover { background: var(--signal); color: var(--signal-ink); } .ds-btn-primary:focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; }"
+    },
+    {
+      "name": "Letter-track input",
+      "kind": "input",
+      "refersTo": "input-track",
+      "description": "Search rail.",
+      "html": "<input class=\"ds-track\" placeholder=\"¿Qué estás buscando?\" />",
+      "css": ".ds-track { width: 100%; border: none; border-bottom: 2px solid var(--rail); background: transparent; color: var(--ink); font-weight: 700; padding: 8px 0; } .ds-track:focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; }"
+    },
+    {
+      "name": "Filter chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Inverts when active.",
+      "html": "<button class=\"ds-chip ds-chip-on\">WhatsApp</button>",
+      "css": ".ds-chip { border: 1px solid color-mix(in srgb, var(--rail) 40%, transparent); background: transparent; color: var(--ink); padding: 6px 12px; } .ds-chip-on { background: var(--ink); color: var(--board); border-color: var(--ink); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The neighbourhood pizarra",
+    "overview": "The public directory is a shop-front letter-board. Search is the largest object. Selected results invert like a flipped letter tile.",
+    "keyCharacteristics": [
+      "Flooded board ground",
+      "Condensed uppercase display on a letter-track",
+      "Square corners; colour only on state bands",
+      "Hard invert for selection"
+    ],
+    "rules": [
+      { "name": "The One Signal Rule", "body": "If it is not WhatsApp, open-now, or a true warning, it stays ink on board.", "section": "colors" }
+    ],
+    "dos": [
+      "Keep search the largest thing on the first viewport",
+      "Invert the selected row and matching pin together",
+      "Hide the street address until the row expands"
+    ],
+    "donts": [
+      "Ship a photo-hero or equal icon-card grid",
+      "Use a second accent colour",
+      "Navigate away to a dedicated business page"
+    ]
+  }
+}

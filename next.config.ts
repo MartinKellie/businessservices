@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
   // `typedRoutes` is left off while routes are still being scaffolded (it
   // requires generated route types that aren't present before a build, which
   // breaks the typecheck-before-build CI order). Re-enable once routes settle.
+  allowedDevOrigins: ['127.0.0.1', 'localhost'],
 };
 
 export default withNextIntl(nextConfig);

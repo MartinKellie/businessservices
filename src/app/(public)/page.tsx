@@ -1,10 +1,25 @@
-import { PlaceholderScreen } from '@/components/placeholder-screen';
+import { HomeSearch } from '@/components/home/home-search';
+import { PopularCategories } from '@/components/home/popular-categories';
+import { listActiveAreas, listPublicCategories } from '@/lib/services/public';
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [areas, categories] = await Promise.all([
+    listActiveAreas(),
+    listPublicCategories({ popularOnly: true }),
+  ]);
+
   return (
-    <PlaceholderScreen
-      title="Directorio de Negocios — Cúcuta"
-      note="Homepage: buscador, selector de zona, «Cerca de mí», categorías populares, banner de anuncios."
-    />
+    <main className="px-4 py-10 sm:px-6 sm:py-16">
+      <section className="mx-auto min-h-[58dvh] max-w-5xl content-center">
+        <HomeSearch areas={areas} />
+      </section>
+
+      <section className="mx-auto mt-16 max-w-3xl" aria-labelledby="popular-heading">
+        <h2 id="popular-heading" className="font-display text-3xl font-extrabold uppercase tracking-wide">
+          Lo de siempre
+        </h2>
+        <PopularCategories categories={categories} areas={areas} />
+      </section>
+    </main>
   );
 }
