@@ -16,6 +16,17 @@ British English in code comments and docs; **all public UI copy is Spanish**.
 ## 1. Ground rules
 
 - **Public site:** Spanish only. Not built for SEO / search-engine discovery.
+- **Dev-only UI language toggle:** add a small EN/ES switch, visible only in development
+  (e.g. gated on `NODE_ENV !== 'production'`), that swaps *UI copy only* — labels, buttons,
+  static strings. It's a review aid for English-speaking team members, not a product
+  feature; don't surface it in production or promote it anywhere. Search terms, matching,
+  and all directory content (business names, categories, products) stay Spanish
+  regardless of the toggle — it never changes what's queried or what data comes back, only
+  how the surrounding chrome reads. Persist the choice per browser in `localStorage`
+  (`pref.devUiLocale`, default `es`), same pattern as `pref.theme` below. Implementation is
+  Cursor's call — reusing the admin's `next-intl` catalogues is fine if convenient, but a
+  lightweight hardcoded EN string set behind the toggle is equally acceptable given this
+  never ships.
 - **Admin dashboard:** bilingual Spanish/English. Locale is stored in the `ADMIN_LOCALE`
   cookie (`es` | `en`), defaulting to `es`. Strings come from `next-intl`
   (`src/i18n/messages/{es,en}.json`) — Cursor adds keys as screens are built; backend
@@ -35,6 +46,7 @@ British English in code comments and docs; **all public UI copy is Spanish**.
   | `pref.desktopPane` | which pane is collapsed, if any (`none` \| `map` \| `list`) |
   | `pref.mobileView` | last-used mobile view (`map` \| `list`) |
   | `pref.theme` | `system` \| `light` \| `dark` |
+  | `pref.devUiLocale` | dev-only UI copy language (`es` \| `en`, default `es`) — see above, not shipped |
   | `consent.cookies` | cookie-preference selections + timestamp |
   (Exact key names are a suggestion; agree final names with backend only if they need to be
   read server-side — currently none are.)
