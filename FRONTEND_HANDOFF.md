@@ -383,6 +383,27 @@ the shape in §8. List endpoints accept `?limit=&offset=` and return newest/firs
 
 Synonyms additionally take `{ scope: 'global'\|'product_service'\|'category', productServiceId?, categoryId? }` (target must match scope) and have no `PATCH`.
 
+**Import / export** (scope §31 — Owner only)
+| Method | Path | Notes |
+|---|---|---|
+| POST | `/imports` | multipart `file` (CSV or `.xlsx`) + optional `format`; parses and **validates every row**, creates nothing yet. Returns `{ batch: { id, totalRows, validRows, errorRows, status: 'pending_review', … } }` |
+| GET | `/imports` | recent batches |
+| GET | `/imports/:id` | one batch |
+| GET | `/imports/:id/rows?onlyErrors=` | rows with `{ rowNumber, raw, ok, errors, resolved }` — build the review table from this before committing |
+| POST | `/imports/:id/commit` | creates a **draft** business for every valid row (with premises/categories/products/an import note); error rows are skipped; returns the updated batch (`committedRows`) |
+| POST | `/imports/:id/discard` | marks the batch discarded (only while `pending_review`) |
+| GET | `/businesses/export?format=csv\|xlsx&status=` | downloads a file (`Content-Disposition: attachment`) |
+
+Import never publishes — every row becomes a draft, so the normal publish-minimum check
+still gates going live. Columns (header row, case-sensitive): `name, phone, whatsapp,
+email, website, instagram, facebook, primaryCategory, secondaryCategories,
+productsServices, area, premisesKind, addressLine, serviceAreaNote, lat, lng, sourceNote`.
+`primaryCategory`/`area`/`productsServices` match existing approved entries by name or
+slug (accent/case-insensitive) — free text never creates new taxonomy (scope §7).
+Unresolved secondary categories/products are dropped with a note, not blocking; a missing
+name, category, area/service-zone, or contact-or-source-note blocks the row. Export adds
+read-only `id, slug, status, lastVerifiedAt` columns.
+
 **Search-preview** (scope §32) — `GET /api/admin/search-preview?q=&businessId=&areaId=`
 - with `businessId`: `{ appears, rank, total, matchedByName, score, resolved }`
 - without: `{ total, resolved, results: [{ rank, id, name, status, primaryCategory }] }`

@@ -158,6 +158,32 @@ link to a business, `handledBy` stamp), `POST /api/admin/enquiry-uploads/:id/rev
 back-link `promoted_media_id`). Retention (`soft_deleted_at` / `purge_after`) is left for
 the Phase 8 cron.
 
+## Import / export (Phase 7 — done)
+
+Staging schema (migration `0002_import_staging.sql`): `import_batches` (one row per
+upload; counts + lifecycle status `pending_review → committed | discarded`) and
+`import_rows` (raw cells as `jsonb`, the validation result, and the resolved
+category/product/area ids so commit never re-parses). `src/lib/services/import-export.ts`:
+
+- **Import never publishes.** `createImportBatch` parses (`src/lib/csv.ts`, a small
+  dependency-free RFC 4180 reader/writer, or `src/lib/xlsx.ts` via `exceljs`), preloads
+  approved categories/products/active areas into in-memory lookup maps, and validates
+  every row (mirrors the draft-minimum: name, a resolved primary category, an area or a
+  service-area note, and a contact method or a source note). Unresolved *secondary*
+  categories/products are recorded as `skipped`, not blocking. Nothing is written to the
+  business tables at this stage.
+- `commitImportBatch` creates a **`draft`** business per valid row (contact fields,
+  category/product links, premises, an internal note recording the import + anything
+  skipped) inside one transaction per row; the normal publish-minimum check (Phase 3)
+  still gates whether it can ever go live. Error rows are skipped; already-committed
+  batches/discarded batches refuse a second commit.
+- `exportBusinesses` is a single raw-SQL query (primary/secondary category names,
+  product/service names, area, premises, lat/lng via `ST_X`/`ST_Y`) written to the same
+  column shape as import, plus read-only `id`/`slug`/`status`/`lastVerifiedAt`.
+- The whole feature is Owner-only (scope §26). `uuid` is pinned via a `package.json`
+  `overrides` entry (exceljs' own dependency has an unrelated advisory; we only use its
+  stable `v4()`).
+
 ## Integrations
 
 - **Vercel Blob** — business media and enquiry uploads; nothing is public until an admin

@@ -76,3 +76,13 @@ export const enquiryType = pgEnum('enquiry_type', [
 
 /** Enquiry handling status (scope §34). */
 export const enquiryStatus = pgEnum('enquiry_status', ['new', 'in_progress', 'closed']);
+
+/** File format of an import/export batch (scope §31). */
+export const importFormat = pgEnum('import_format', ['csv', 'xlsx']);
+
+/** Lifecycle of an import batch: rows are reviewable before anything is created. */
+export const importBatchStatus = pgEnum('import_batch_status', [
+  'pending_review',
+  'committed',
+  'discarded',
+]);
