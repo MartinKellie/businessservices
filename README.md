@@ -32,12 +32,19 @@ Architecture notes: [`docs/architecture.md`](./docs/architecture.md).
 nvm use
 npm install
 cp .env.example .env          # fill in values; generate AUTH_SECRET with `npx auth secret`
-docker compose up -d          # starts Postgres + PostGIS on localhost:5432
-npm run db:migrate            # apply migrations
+docker compose up -d          # starts Postgres + PostGIS on localhost:5432, plus a directory_test database
+npm run db:migrate            # apply migrations to the dev database
+npm run db:migrate:test       # apply migrations to the test database
 npm run db:seed               # seed areas, starter categories, default settings
 npm run admin:add -- you@example.com owner   # add yourself to the admin allow-list
 npm run dev                   # http://localhost:3000
 ```
+
+`npm test` runs against a separate `directory_test` database, never the dev one — it's
+only created automatically on a fresh `docker compose up -d` (first-time volume init); on
+an existing volume, create it once with `docker compose exec db psql -U directory -d
+directory -c "CREATE DATABASE directory_test;"` and run `npm run db:migrate:test`. Tests
+truncate tables between files, so this keeps a `npm test` run from wiping dev/dummy data.
 
 ## Common tasks
 
@@ -50,7 +57,8 @@ npm run dev                   # http://localhost:3000
 | `npm run format` / `npm run format:check` | Prettier write / check |
 | `npm test` / `npm run test:watch` | Vitest |
 | `npm run db:generate` | Generate a migration from schema changes |
-| `npm run db:migrate` | Apply pending migrations |
+| `npm run db:migrate` | Apply pending migrations (dev database) |
+| `npm run db:migrate:test` | Apply pending migrations (test database, used by `npm test`) |
 | `npm run db:seed` | Seed reference data |
 | `npm run admin:add -- <email> [owner\|editor]` | Add / re-activate an admin allow-list entry |
 | `npm run db:studio` | Drizzle Studio |

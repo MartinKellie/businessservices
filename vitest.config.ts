@@ -6,6 +6,7 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
+    setupFiles: ['tests/setup-env.ts'],
     include: ['src/**/*.test.ts', 'tests/**/*.test.ts'],
     // Integration tests share one Postgres and truncate tables, so test files
     // must not run in parallel.
