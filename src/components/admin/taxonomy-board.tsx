@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { BoardButton, BoardField, BoardState, Chip, Flash, fieldClass } from '@/components/admin/admin-ui';
+import {
+  BoardButton,
+  BoardField,
+  BoardState,
+  Chip,
+  Flash,
+  fieldClass,
+} from '@/components/admin/admin-ui';
 import {
   AdminApiError,
   adminGet,
@@ -46,12 +53,18 @@ export function TaxonomyBoard({ role }: { role: AdminRole }) {
     adminGet<{ productsServices: AdminProduct[] }>(`/api/admin/products-services?${query}`).then(
       (d) => setProds(d.productsServices),
     );
-    adminGet<{ synonyms: AdminSynonym[] }>(`/api/admin/synonyms?${query}`).then((d) => setSyns(d.synonyms));
+    adminGet<{ synonyms: AdminSynonym[] }>(`/api/admin/synonyms?${query}`).then((d) =>
+      setSyns(d.synonyms),
+    );
   }
 
   useEffect(load, [status, q]);
 
-  async function review(kind: 'categories' | 'products-services' | 'synonyms', id: string, decision: 'approve' | 'reject') {
+  async function review(
+    kind: 'categories' | 'products-services' | 'synonyms',
+    id: string,
+    decision: 'approve' | 'reject',
+  ) {
     setFlash(null);
     try {
       await adminSend(`/api/admin/${kind}/${id}/review`, 'POST', {
@@ -141,7 +154,9 @@ export function TaxonomyBoard({ role }: { role: AdminRole }) {
                             await adminSend(`/api/admin/categories/${row.id}`, 'DELETE');
                             load();
                           } catch (err) {
-                            setFlash(err instanceof AdminApiError ? err.message : t('taxonomy.inUse'));
+                            setFlash(
+                              err instanceof AdminApiError ? err.message : t('taxonomy.inUse'),
+                            );
                           }
                         }
                       : undefined
@@ -195,7 +210,9 @@ export function TaxonomyBoard({ role }: { role: AdminRole }) {
                             await adminSend(`/api/admin/products-services/${row.id}`, 'DELETE');
                             load();
                           } catch (err) {
-                            setFlash(err instanceof AdminApiError ? err.message : t('taxonomy.inUse'));
+                            setFlash(
+                              err instanceof AdminApiError ? err.message : t('taxonomy.inUse'),
+                            );
                           }
                         }
                       : undefined
@@ -301,9 +318,7 @@ function TaxonRow({
           <BoardButton invert onClick={onApprove}>
             {t('common.approve')}
           </BoardButton>
-          <BoardButton onClick={onReject}>
-            {t('common.reject')}
-          </BoardButton>
+          <BoardButton onClick={onReject}>{t('common.reject')}</BoardButton>
         </div>
       ) : null}
       {onDelete ? (

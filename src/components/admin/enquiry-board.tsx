@@ -3,7 +3,14 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { BoardButton, BoardField, BoardState, Chip, Flash, fieldClass } from '@/components/admin/admin-ui';
+import {
+  BoardButton,
+  BoardField,
+  BoardState,
+  Chip,
+  Flash,
+  fieldClass,
+} from '@/components/admin/admin-ui';
 import {
   AdminApiError,
   adminGet,
@@ -53,7 +60,11 @@ export function EnquiryBoard({ selectedId }: { selectedId?: string }) {
           </div>
           <div className="mt-2 flex flex-wrap gap-1">
             {TYPES.map((value) => (
-              <Chip key={value} active={type === value} onClick={() => setType(type === value ? '' : value)}>
+              <Chip
+                key={value}
+                active={type === value}
+                onClick={() => setType(type === value ? '' : value)}
+              >
                 {t(`enquiryType.${value}`)}
               </Chip>
             ))}
@@ -88,7 +99,9 @@ export function EnquiryBoard({ selectedId }: { selectedId?: string }) {
         </div>
       </section>
       <section className={`${selectedId ? 'flex' : 'hidden lg:flex'} min-w-0 flex-1 flex-col`}>
-        {selectedId ? <EnquiryFicha id={selectedId} /> : (
+        {selectedId ? (
+          <EnquiryFicha id={selectedId} />
+        ) : (
           <div className="flex h-full items-center px-8 text-muted">{t('enquiries.empty')}</div>
         )}
       </section>
@@ -124,10 +137,15 @@ function EnquiryFicha({ id }: { id: string }) {
 
   return (
     <div className="admin-ficha board-scroll h-full overflow-auto px-4 py-4">
-      <Link href="/admin/consultas" className="text-sm lg:hidden underline-offset-4 hover:underline">
+      <Link
+        href="/admin/consultas"
+        className="text-sm lg:hidden underline-offset-4 hover:underline"
+      >
         {t('common.back')}
       </Link>
-      <h1 className="mt-3 font-display text-3xl font-extrabold tracking-wide uppercase">{item.name}</h1>
+      <h1 className="mt-3 font-display text-3xl font-extrabold tracking-wide uppercase">
+        {item.name}
+      </h1>
       <p className="mt-1 text-sm text-muted">
         {item.email}
         {item.phone ? ` · ${item.phone}` : ''}
@@ -149,10 +167,18 @@ function EnquiryFicha({ id }: { id: string }) {
           </select>
         </BoardField>
         <BoardField label={t('enquiries.adminNotes')}>
-          <textarea className={`${fieldClass} min-h-24`} value={notes} onChange={(e) => setNotes(e.target.value)} />
+          <textarea
+            className={`${fieldClass} min-h-24`}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+          />
         </BoardField>
         <BoardField label={t('enquiries.linkBusiness')}>
-          <input className={fieldClass} value={businessId} onChange={(e) => setBusinessId(e.target.value)} />
+          <input
+            className={fieldClass}
+            value={businessId}
+            onChange={(e) => setBusinessId(e.target.value)}
+          />
         </BoardField>
         {flash ? <Flash tone="err">{flash}</Flash> : null}
         <BoardButton

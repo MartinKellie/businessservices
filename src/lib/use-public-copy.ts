@@ -2,12 +2,7 @@
 
 import { useEffect } from 'react';
 import { PREF } from '@/lib/preferences';
-import {
-  DEV_UI_LOCALE,
-  PUBLIC_COPY,
-  type DevUiLocale,
-  type PublicCopy,
-} from '@/lib/public-copy';
+import { DEV_UI_LOCALE, PUBLIC_COPY, type DevUiLocale, type PublicCopy } from '@/lib/public-copy';
 import { useHydrated, usePreference } from '@/lib/use-preference';
 
 export function usePublicCopy(): {

@@ -4,7 +4,13 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { PinPicker } from '@/components/admin/pin-picker';
-import { BoardButton, BoardField, BoardState, Flash, fieldClass } from '@/components/admin/admin-ui';
+import {
+  BoardButton,
+  BoardField,
+  BoardState,
+  Flash,
+  fieldClass,
+} from '@/components/admin/admin-ui';
 import type { PublicArea } from '@/lib/api-contract';
 import {
   AdminApiError,
@@ -54,11 +60,19 @@ export function BusinessFicha({
 
   useEffect(() => {
     let cancelled = false;
-    setBiz(null);
-    setError(null);
-    reload().catch((err) => {
-      if (!cancelled) setError(err instanceof AdminApiError ? err.message : t('common.error'));
-    });
+    Promise.all([
+      adminGet<{ business: AdminBusinessDetail }>(`/api/admin/businesses/${id}`),
+      adminGet<PublishReport>(`/api/admin/businesses/${id}/status`),
+    ])
+      .then(([detail, readiness]) => {
+        if (!cancelled) {
+          setBiz(detail.business);
+          setReport(readiness);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err instanceof AdminApiError ? err.message : t('common.error'));
+      });
     return () => {
       cancelled = true;
     };
@@ -113,7 +127,13 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function IdentitySection({ biz, onSaved }: { biz: AdminBusinessDetail; onSaved: () => Promise<void> }) {
+function IdentitySection({
+  biz,
+  onSaved,
+}: {
+  biz: AdminBusinessDetail;
+  onSaved: () => Promise<void>;
+}) {
   const t = useTranslations('admin');
   const [form, setForm] = useState({
     name: biz.name,
@@ -170,28 +190,40 @@ function IdentitySection({ biz, onSaved }: { biz: AdminBusinessDetail; onSaved: 
   return (
     <Section title={t('ficha.identity')}>
       <BoardField label={t('ficha.name')}>
-        <input className={fieldClass} value={form.name} onChange={(e) => set('name', e.target.value)} />
+        <input
+          className={fieldClass}
+          value={form.name}
+          onChange={(e) => set('name', e.target.value)}
+        />
       </BoardField>
       <div className="grid gap-4 sm:grid-cols-2">
-        {(['phone', 'whatsapp', 'email', 'website', 'instagram', 'facebook'] as const).map((field) => (
-          <BoardField key={field} label={t(`ficha.${field}`)}>
-            <input
-              className={fieldClass}
-              value={form[field]}
-              onChange={(e) => set(field, e.target.value)}
-            />
-          </BoardField>
-        ))}
+        {(['phone', 'whatsapp', 'email', 'website', 'instagram', 'facebook'] as const).map(
+          (field) => (
+            <BoardField key={field} label={t(`ficha.${field}`)}>
+              <input
+                className={fieldClass}
+                value={form[field]}
+                onChange={(e) => set(field, e.target.value)}
+              />
+            </BoardField>
+          ),
+        )}
       </div>
       <p className="text-sm text-muted">{t('ficha.verificationNeeded')}</p>
       <div className="grid gap-4 sm:grid-cols-3">
         <BoardField label={t('ficha.level')}>
           <select className={fieldClass} value={level} onChange={(e) => setLevel(e.target.value)}>
-            {['researched', 'contacted', 'phone_verified', 'visited', 'business_claimed'].map((value) => (
-              <option key={value} value={value} disabled={highRiskChanged && !STRONG_VERIFICATION.includes(value as never)}>
-                {t(`ficha.level_${value}`)}
-              </option>
-            ))}
+            {['researched', 'contacted', 'phone_verified', 'visited', 'business_claimed'].map(
+              (value) => (
+                <option
+                  key={value}
+                  value={value}
+                  disabled={highRiskChanged && !STRONG_VERIFICATION.includes(value as never)}
+                >
+                  {t(`ficha.level_${value}`)}
+                </option>
+              ),
+            )}
           </select>
         </BoardField>
         <BoardField label={t('ficha.method')}>
@@ -211,7 +243,11 @@ function IdentitySection({ biz, onSaved }: { biz: AdminBusinessDetail; onSaved: 
           </select>
         </BoardField>
         <BoardField label={t('ficha.source')}>
-          <input className={fieldClass} value={source} onChange={(e) => setSource(e.target.value)} />
+          <input
+            className={fieldClass}
+            value={source}
+            onChange={(e) => setSource(e.target.value)}
+          />
         </BoardField>
       </div>
       {biz.lastVerifiedAt ? (
@@ -227,7 +263,13 @@ function IdentitySection({ biz, onSaved }: { biz: AdminBusinessDetail; onSaved: 
   );
 }
 
-function TaxonomySection({ biz, onSaved }: { biz: AdminBusinessDetail; onSaved: () => Promise<void> }) {
+function TaxonomySection({
+  biz,
+  onSaved,
+}: {
+  biz: AdminBusinessDetail;
+  onSaved: () => Promise<void>;
+}) {
   const t = useTranslations('admin');
   const [cats, setCats] = useState<AdminCategory[]>([]);
   const [prods, setProds] = useState<AdminProduct[]>([]);
@@ -240,9 +282,9 @@ function TaxonomySection({ biz, onSaved }: { biz: AdminBusinessDetail; onSaved: 
   const [flash, setFlash] = useState<string | null>(null);
 
   useEffect(() => {
-    adminGet<{ categories: AdminCategory[] }>('/api/admin/categories?status=approved&limit=200').then(
-      (data) => setCats(data.categories),
-    );
+    adminGet<{ categories: AdminCategory[] }>(
+      '/api/admin/categories?status=approved&limit=200',
+    ).then((data) => setCats(data.categories));
     adminGet<{ productsServices: AdminProduct[] }>(
       '/api/admin/products-services?status=approved&limit=200',
     ).then((data) => setProds(data.productsServices));
@@ -288,7 +330,11 @@ function TaxonomySection({ biz, onSaved }: { biz: AdminBusinessDetail; onSaved: 
         ) : (
           <>
             <BoardField label={t('ficha.primaryCategory')}>
-              <select className={fieldClass} value={primary} onChange={(e) => setPrimary(e.target.value)}>
+              <select
+                className={fieldClass}
+                value={primary}
+                onChange={(e) => setPrimary(e.target.value)}
+              >
                 <option value="">{t('common.choose')}</option>
                 {cats.map((cat) => (
                   <option key={cat.id} value={cat.id}>
@@ -310,7 +356,9 @@ function TaxonomySection({ biz, onSaved }: { biz: AdminBusinessDetail; onSaved: 
                         checked={secondary.includes(cat.id)}
                         onChange={(e) =>
                           setSecondary((current) =>
-                            e.target.checked ? [...current, cat.id] : current.filter((id) => id !== cat.id),
+                            e.target.checked
+                              ? [...current, cat.id]
+                              : current.filter((id) => id !== cat.id),
                           )
                         }
                       />
@@ -339,7 +387,9 @@ function TaxonomySection({ biz, onSaved }: { biz: AdminBusinessDetail; onSaved: 
                     checked={picked.includes(prod.id)}
                     onChange={(e) =>
                       setPicked((current) =>
-                        e.target.checked ? [...current, prod.id] : current.filter((id) => id !== prod.id),
+                        e.target.checked
+                          ? [...current, prod.id]
+                          : current.filter((id) => id !== prod.id),
                       )
                     }
                   />
@@ -426,7 +476,11 @@ function PremisesSection({
       {kind === 'physical' ? (
         <>
           <BoardField label={t('ficha.address')}>
-            <input className={fieldClass} value={address} onChange={(e) => setAddress(e.target.value)} />
+            <input
+              className={fieldClass}
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+            />
           </BoardField>
           <p className="text-sm text-muted">{t('ficha.mapHint')}</p>
           <PinPicker
@@ -466,7 +520,13 @@ function PremisesSection({
   );
 }
 
-function HoursSection({ biz, onSaved }: { biz: AdminBusinessDetail; onSaved: () => Promise<void> }) {
+function HoursSection({
+  biz,
+  onSaved,
+}: {
+  biz: AdminBusinessDetail;
+  onSaved: () => Promise<void>;
+}) {
   const t = useTranslations('admin');
   const [entries, setEntries] = useState(
     biz.openingHours.map((row) => ({
@@ -527,7 +587,9 @@ function HoursSection({ biz, onSaved }: { biz: AdminBusinessDetail; onSaved: () 
                         value={shift.opensAt}
                         onChange={(e) =>
                           setEntries((current) =>
-                            current.map((row, i) => (i === at ? { ...row, opensAt: e.target.value } : row)),
+                            current.map((row, i) =>
+                              i === at ? { ...row, opensAt: e.target.value } : row,
+                            ),
                           )
                         }
                       />
@@ -540,7 +602,9 @@ function HoursSection({ biz, onSaved }: { biz: AdminBusinessDetail; onSaved: () 
                         value={shift.closesAt}
                         onChange={(e) =>
                           setEntries((current) =>
-                            current.map((row, i) => (i === at ? { ...row, closesAt: e.target.value } : row)),
+                            current.map((row, i) =>
+                              i === at ? { ...row, closesAt: e.target.value } : row,
+                            ),
                           )
                         }
                       />
@@ -654,15 +718,19 @@ function OpsSection({ id }: { id: string }) {
   const [followNote, setFollowNote] = useState('');
 
   function load() {
-    adminGet<{ notes: AdminNote[] }>(`/api/admin/businesses/${id}/notes`).then((d) => setNotes(d.notes));
+    adminGet<{ notes: AdminNote[] }>(`/api/admin/businesses/${id}/notes`).then((d) =>
+      setNotes(d.notes),
+    );
     adminGet<{ contactHistory: AdminContactEntry[] }>(
       `/api/admin/businesses/${id}/contact-history`,
     ).then((d) => setHistory(d.contactHistory));
-    adminGet<{ followUp: AdminFollowUp | null }>(`/api/admin/businesses/${id}/follow-up`).then((d) => {
-      setFollow(d.followUp);
-      setDueOn(dateInputValue(d.followUp?.dueOn));
-      setFollowNote(d.followUp?.note ?? '');
-    });
+    adminGet<{ followUp: AdminFollowUp | null }>(`/api/admin/businesses/${id}/follow-up`).then(
+      (d) => {
+        setFollow(d.followUp);
+        setDueOn(dateInputValue(d.followUp?.dueOn));
+        setFollowNote(d.followUp?.note ?? '');
+      },
+    );
   }
 
   useEffect(load, [id]);
@@ -720,7 +788,11 @@ function OpsSection({ id }: { id: string }) {
             </select>
           </BoardField>
           <BoardField label={t('ficha.outcome')}>
-            <input className={fieldClass} value={outcome} onChange={(e) => setOutcome(e.target.value)} />
+            <input
+              className={fieldClass}
+              value={outcome}
+              onChange={(e) => setOutcome(e.target.value)}
+            />
           </BoardField>
         </div>
         <BoardButton
@@ -756,7 +828,11 @@ function OpsSection({ id }: { id: string }) {
             />
           </BoardField>
           <BoardField label={t('ficha.followNote')}>
-            <input className={fieldClass} value={followNote} onChange={(e) => setFollowNote(e.target.value)} />
+            <input
+              className={fieldClass}
+              value={followNote}
+              onChange={(e) => setFollowNote(e.target.value)}
+            />
           </BoardField>
         </div>
         <div className="flex flex-wrap gap-2">

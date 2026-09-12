@@ -23,10 +23,13 @@ function MapLoading() {
   );
 }
 
-const SearchMap = dynamic(() => import('@/components/search/search-map').then((mod) => mod.SearchMap), {
-  ssr: false,
-  loading: () => <MapLoading />,
-});
+const SearchMap = dynamic(
+  () => import('@/components/search/search-map').then((mod) => mod.SearchMap),
+  {
+    ssr: false,
+    loading: () => <MapLoading />,
+  },
+);
 
 interface SearchScreenProps {
   initialQuery: SearchQuery;
@@ -173,7 +176,7 @@ export function SearchScreen({
   );
   const contextLabel = usingNearMe
     ? `${copy.nearYou}${result?.appliedRadiusMeters ? ` (${Math.round(result.appliedRadiusMeters / 1000)} km)` : ''}`
-    : area?.name ?? copy.allAreas;
+    : (area?.name ?? copy.allAreas);
 
   const listPane = (
     <div className="board-scroll h-full overflow-y-auto">
@@ -384,7 +387,11 @@ export function SearchScreen({
               {copy.list}
             </PaneClip>
           </div>
-          <div className="hidden border border-rail/40 md:flex" role="group" aria-label={copy.panes}>
+          <div
+            className="hidden border border-rail/40 md:flex"
+            role="group"
+            aria-label={copy.panes}
+          >
             <PaneClip active={pane === 'list'} onClick={() => setStoredPane('list')}>
               {copy.list}
             </PaneClip>

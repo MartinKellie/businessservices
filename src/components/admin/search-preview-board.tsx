@@ -3,7 +3,12 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { BoardButton, BoardField, Flash, fieldClass } from '@/components/admin/admin-ui';
-import { AdminApiError, adminGet, type SearchPreviewHit, type SearchPreviewList } from '@/lib/admin-api';
+import {
+  AdminApiError,
+  adminGet,
+  type SearchPreviewHit,
+  type SearchPreviewList,
+} from '@/lib/admin-api';
 import type { PublicArea } from '@/lib/api-contract';
 
 export function SearchPreviewBoard({ areas }: { areas: PublicArea[] }) {
@@ -48,7 +53,11 @@ export function SearchPreviewBoard({ areas }: { areas: PublicArea[] }) {
           <input className={fieldClass} value={q} onChange={(e) => setQ(e.target.value)} />
         </BoardField>
         <BoardField label={t('preview.businessId')}>
-          <input className={fieldClass} value={businessId} onChange={(e) => setBusinessId(e.target.value)} />
+          <input
+            className={fieldClass}
+            value={businessId}
+            onChange={(e) => setBusinessId(e.target.value)}
+          />
         </BoardField>
         <BoardField label={t('preview.area')}>
           <select className={fieldClass} value={areaId} onChange={(e) => setAreaId(e.target.value)}>
@@ -65,7 +74,9 @@ export function SearchPreviewBoard({ areas }: { areas: PublicArea[] }) {
         </BoardButton>
         {flash ? <Flash tone="err">{flash}</Flash> : null}
         {hit ? (
-          <p className={hit.appears ? 'bg-ink px-3 py-2 text-board' : 'border border-warn px-3 py-2'}>
+          <p
+            className={hit.appears ? 'bg-ink px-3 py-2 text-board' : 'border border-warn px-3 py-2'}
+          >
             {hit.appears
               ? `${t('preview.appears')} · ${t('preview.rank', { rank: String(hit.rank), total: String(hit.total) })}`
               : t('preview.missing')}

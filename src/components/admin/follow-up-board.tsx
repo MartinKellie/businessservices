@@ -4,7 +4,13 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { BoardButton, BoardState, Chip } from '@/components/admin/admin-ui';
-import { AdminApiError, adminGet, adminSend, dateInputValue, type AdminFollowUp } from '@/lib/admin-api';
+import {
+  AdminApiError,
+  adminGet,
+  adminSend,
+  dateInputValue,
+  type AdminFollowUp,
+} from '@/lib/admin-api';
 
 export function FollowUpBoard() {
   const t = useTranslations('admin');

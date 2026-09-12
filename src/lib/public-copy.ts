@@ -7,12 +7,7 @@ export const DEV_UI_LOCALE = process.env.NODE_ENV !== 'production';
 
 export type DevUiLocale = 'es' | 'en';
 
-export const ENQUIRY_TYPES = [
-  'add_business',
-  'update_listing',
-  'advertising',
-  'general',
-] as const;
+export const ENQUIRY_TYPES = ['add_business', 'update_listing', 'advertising', 'general'] as const;
 
 export type EnquiryType = (typeof ENQUIRY_TYPES)[number];
 
@@ -55,7 +50,8 @@ const es = {
   nearYou: 'Cerca de ti',
   resultOne: 'resultado',
   resultMany: 'resultados',
-  geoDeniedSearch: 'No se pudo usar tu ubicación. Mostrando {area}. Escribe una dirección si quieres.',
+  geoDeniedSearch:
+    'No se pudo usar tu ubicación. Mostrando {area}. Escribe una dirección si quieres.',
   map: 'Mapa',
   list: 'Lista',
   both: 'Ambos',
@@ -432,7 +428,8 @@ const en: PublicCopy = {
   cookieClose: 'Close',
   poweredBy: 'Powered by MK1GROUP',
   maintenanceTitle: 'Under maintenance',
-  maintenanceMessage: 'The directory is temporarily under maintenance. Please try again in a few minutes.',
+  maintenanceMessage:
+    'The directory is temporarily under maintenance. Please try again in a few minutes.',
 };
 
 export const PUBLIC_COPY: Record<DevUiLocale, PublicCopy> = { es, en };

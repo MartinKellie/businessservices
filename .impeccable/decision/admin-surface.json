@@ -9,7 +9,13 @@
       "lineage": "Colombian oficina ficha drawers plus the public letter-board",
       "thesis": "Work lives in labelled drawers; pulling one opens a ruled list, and a ficha slides in from the right.",
       "palette": ["#f3ead4", "#1a1812", "#3f382c", "#0d6b38", "#8a3d0b"],
-      "materials": ["sun-bleached enamel board", "1px square rails", "hard invert tiles", "Atkinson body", "Big Shoulders only on the drawer labels"],
+      "materials": [
+        "sun-bleached enamel board",
+        "1px square rails",
+        "hard invert tiles",
+        "Atkinson body",
+        "Big Shoulders only on the drawer labels"
+      ],
       "viewport": "A left column of inverted drawer labels (Negocios, Consultas, Seguimientos, Taxonomía, Importar, Ajustes). The remaining board is a dense ruled business list. Selecting a row slides a ficha from the right with identity, contact, hours, and publish blockers. Locale ES/EN and the signed-in name sit on a thin top rail, not a hero.",
       "risk": "One extra click if the drawer column steals width from the list on a laptop.",
       "raised": [
@@ -45,7 +51,12 @@
       "lineage": "Morning shop slate: what is due, what arrived, what is still a draft",
       "thesis": "Staff land on three urgency columns; every other screen is a drill-down from a ticket on that slate.",
       "palette": ["#f3ead4", "#1a1812", "#3f382c", "#0d6b38", "#8a3d0b"],
-      "materials": ["enamel board", "square rails", "invert for the selected ticket", "warn band only on overdue"],
+      "materials": [
+        "enamel board",
+        "square rails",
+        "invert for the selected ticket",
+        "warn band only on overdue"
+      ],
       "viewport": "Three equal columns fill the first viewport: Vencidos, Consultas nuevas, Borradores. Each ticket is a ruled menu row. Opening one expands a ficha across the lower board. Nav to full lists is secondary, under the slate.",
       "risk": "A quiet day looks empty, and a busy day hides the full business catalogue behind the home board.",
       "wireframe": {
@@ -89,7 +100,12 @@
       "lineage": "Rail concourse split-flap, fused onto the enamel pizarra",
       "thesis": "The catalogue is one full-bleed table; flaps never move, only the letters on the selected row invert.",
       "palette": ["#f3ead4", "#1a1812", "#3f382c", "#0d6b38", "#8a3d0b"],
-      "materials": ["ruled enamel rows", "condensed caps for names", "warn restyle in place", "no steel frame, no amber lamps"],
+      "materials": [
+        "ruled enamel rows",
+        "condensed caps for names",
+        "warn restyle in place",
+        "no steel frame, no amber lamps"
+      ],
       "viewport": "Name, barrio, status, follow-up, WhatsApp as fixed columns across the whole board. Search sits in the top rail at body size. Opening a row expands the ficha as extra ruled lines under that row, not a side panel.",
       "case": "Holds product clarity: editors scan and act in one grid. Identification is shared with the public board, so it can drift into looking like /buscar.",
       "risk": "Inline expansion fights the deep business editor (hours, media, verification).",
@@ -114,7 +130,11 @@
       "lineage": "Archive box wall, fused as enamel drawers stacked by status",
       "thesis": "Draft, active, and closed listings are stacks of labelled ends; you pull a box halfway, then open the ficha.",
       "palette": ["#f3ead4", "#1a1812", "#3f382c", "#0d6b38", "#8a3d0b"],
-      "materials": ["enamel ends not cardboard", "one-line silhouette as category icon", "pulled row invert"],
+      "materials": [
+        "enamel ends not cardboard",
+        "one-line silhouette as category icon",
+        "pulled row invert"
+      ],
       "viewport": "Three tall stacks by status fill the board. Each end label is name + barrio in condensed caps. The pulled box reveals the ficha as the interior, not a separate page.",
       "case": "Holds identification with filing work. Loses clarity once taxonomy, import, and settings need a home that is not a box.",
       "risk": "Stacks look playful and hide the overdue work that a list would surface first.",

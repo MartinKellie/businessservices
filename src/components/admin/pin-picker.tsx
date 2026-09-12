@@ -22,7 +22,9 @@ export function PinPicker({
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markerRef = useRef<maplibregl.Marker | null>(null);
   const onPickRef = useRef(onPick);
-  onPickRef.current = onPick;
+  useEffect(() => {
+    onPickRef.current = onPick;
+  });
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;

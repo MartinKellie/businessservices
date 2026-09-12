@@ -67,7 +67,9 @@ export function ResultCard({ card, selected, onSelect, onHoverChange, children }
             {card.openStatus === 'open' ? <span className="text-signal">{copy.open}</span> : null}
             {card.openStatus === 'closed' ? <span>{copy.closed}</span> : null}
             {status ? (
-              <span className={selected ? 'bg-board px-1.5 text-ink' : 'bg-warn px-1.5 text-warn-ink'}>
+              <span
+                className={selected ? 'bg-board px-1.5 text-ink' : 'bg-warn px-1.5 text-warn-ink'}
+              >
                 {status}
               </span>
             ) : null}

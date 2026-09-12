@@ -16,7 +16,9 @@ export function BoardArticle({
 
   return (
     <main className="mx-auto w-full max-w-[42rem] px-4 py-12 sm:px-6 sm:py-16">
-      <h1 className="font-display text-4xl font-extrabold uppercase tracking-wide sm:text-5xl">{title}</h1>
+      <h1 className="font-display text-4xl font-extrabold uppercase tracking-wide sm:text-5xl">
+        {title}
+      </h1>
       {lead ? <p className="mt-8 max-w-prose text-base leading-relaxed">{lead}</p> : null}
       <div className={lead ? 'mt-2' : 'mt-8'}>{children}</div>
       <p className="mt-12">
@@ -56,7 +58,10 @@ export function BoardPrimaryLink({ href, children }: { href: string; children: R
 
 export function BoardGhostLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link href={href} className="border border-rail/40 px-5 py-2.5 text-sm hover:bg-ink hover:text-board">
+    <Link
+      href={href}
+      className="border border-rail/40 px-5 py-2.5 text-sm hover:bg-ink hover:text-board"
+    >
       {children}
     </Link>
   );

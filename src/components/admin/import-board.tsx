@@ -70,7 +70,10 @@ export function ImportBoard({ batchId }: { batchId?: string }) {
                 const form = new FormData();
                 form.set('file', file);
                 try {
-                  const { batch } = await adminUpload<{ batch: ImportBatch }>('/api/admin/imports', form);
+                  const { batch } = await adminUpload<{ batch: ImportBatch }>(
+                    '/api/admin/imports',
+                    form,
+                  );
                   load();
                   router.push(`/admin/importar/${batch.id}`);
                 } catch (err) {
@@ -83,8 +86,12 @@ export function ImportBoard({ batchId }: { batchId?: string }) {
             />
           </label>
           <div className="mt-3 flex gap-2">
-            <BoardButton onClick={() => void exportFile('csv')}>{t('imports.exportCsv')}</BoardButton>
-            <BoardButton onClick={() => void exportFile('xlsx')}>{t('imports.exportXlsx')}</BoardButton>
+            <BoardButton onClick={() => void exportFile('csv')}>
+              {t('imports.exportCsv')}
+            </BoardButton>
+            <BoardButton onClick={() => void exportFile('xlsx')}>
+              {t('imports.exportXlsx')}
+            </BoardButton>
           </div>
           {flash ? (
             <div className="mt-3">
@@ -121,7 +128,11 @@ export function ImportBoard({ batchId }: { batchId?: string }) {
         </div>
       </section>
       <section className={`${batchId ? 'flex' : 'hidden lg:flex'} min-w-0 flex-1 flex-col`}>
-        {batchId ? <ImportReview id={batchId} /> : <div className="p-8 text-muted">{t('imports.hint')}</div>}
+        {batchId ? (
+          <ImportReview id={batchId} />
+        ) : (
+          <div className="p-8 text-muted">{t('imports.hint')}</div>
+        )}
       </section>
     </div>
   );
@@ -138,7 +149,9 @@ function ImportReview({ id }: { id: string }) {
   function load() {
     adminGet<{ batch: ImportBatch }>(`/api/admin/imports/${id}`).then((d) => setBatch(d.batch));
     const params = onlyErrors ? '?onlyErrors=1' : '';
-    adminGet<{ rows: ImportRow[] }>(`/api/admin/imports/${id}/rows${params}`).then((d) => setRows(d.rows));
+    adminGet<{ rows: ImportRow[] }>(`/api/admin/imports/${id}/rows${params}`).then((d) =>
+      setRows(d.rows),
+    );
   }
 
   useEffect(load, [id, onlyErrors]);

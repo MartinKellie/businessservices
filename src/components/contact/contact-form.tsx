@@ -3,7 +3,11 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { PublicApiError, submitEnquiry } from '@/lib/api-contract';
-import { ACCEPTED_IMAGE_TYPES, MAX_UPLOAD_BYTES, isAcceptedImageType } from '@/lib/media-constraints';
+import {
+  ACCEPTED_IMAGE_TYPES,
+  MAX_UPLOAD_BYTES,
+  isAcceptedImageType,
+} from '@/lib/media-constraints';
 import {
   ENQUIRY_TYPES,
   fill,
@@ -27,7 +31,9 @@ function FieldError({ message }: { message?: string }) {
 
 export function ContactForm({ initialType }: { initialType?: string }) {
   const { copy } = usePublicCopy();
-  const [type, setType] = useState<EnquiryType>(isEnquiryType(initialType) ? initialType : 'general');
+  const [type, setType] = useState<EnquiryType>(
+    isEnquiryType(initialType) ? initialType : 'general',
+  );
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -79,7 +85,10 @@ export function ContactForm({ initialType }: { initialType?: string }) {
       return;
     }
     if (next.size > MAX_UPLOAD_BYTES) {
-      setFields((current) => ({ ...current, file: fill(copy.fileTooLarge, { size: MAX_UPLOAD_LABEL }) }));
+      setFields((current) => ({
+        ...current,
+        file: fill(copy.fileTooLarge, { size: MAX_UPLOAD_LABEL }),
+      }));
       return;
     }
     setFile(next);
@@ -164,7 +173,9 @@ export function ContactForm({ initialType }: { initialType?: string }) {
                 aria-pressed={active}
                 onClick={() => setType(value)}
                 className={`border px-3 py-2 text-sm ${
-                  active ? 'border-ink bg-ink text-board' : 'border-rail/40 hover:bg-ink hover:text-board'
+                  active
+                    ? 'border-ink bg-ink text-board'
+                    : 'border-rail/40 hover:bg-ink hover:text-board'
                 }`}
               >
                 {enquiryTypeLabel(copy, value)}
@@ -290,7 +301,11 @@ export function ContactForm({ initialType }: { initialType?: string }) {
           {file ? (
             <>
               <span className="text-sm">{file.name}</span>
-              <button type="button" onClick={() => onFile(null)} className="text-sm underline-offset-4 hover:underline">
+              <button
+                type="button"
+                onClick={() => onFile(null)}
+                className="text-sm underline-offset-4 hover:underline"
+              >
                 {copy.fileRemove}
               </button>
             </>

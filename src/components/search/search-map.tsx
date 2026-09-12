@@ -25,7 +25,13 @@ interface SearchMapProps {
   hoveredId?: string | null;
 }
 
-export function SearchMap({ pins, selectedId, onSelect, userLocation, hoveredId = null }: SearchMapProps) {
+export function SearchMap({
+  pins,
+  selectedId,
+  onSelect,
+  userLocation,
+  hoveredId = null,
+}: SearchMapProps) {
   const { copy } = usePublicCopy();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -249,7 +255,12 @@ export function SearchMap({ pins, selectedId, onSelect, userLocation, hoveredId 
 
   return (
     <div className="relative h-full min-h-72 w-full">
-      <div ref={containerRef} className="h-full w-full" role="application" aria-label={copy.mapLabel} />
+      <div
+        ref={containerRef}
+        className="h-full w-full"
+        role="application"
+        aria-label={copy.mapLabel}
+      />
       {mapStyleUrl() ? null : (
         <p className="pointer-events-none absolute bottom-8 left-2 bg-board/90 px-2 py-1 text-xs text-muted md:bottom-2">
           {copy.mapFallback}

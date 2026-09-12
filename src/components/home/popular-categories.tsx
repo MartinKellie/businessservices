@@ -21,7 +21,10 @@ export function PopularCategories({
   if (categories.length === 0) {
     return (
       <>
-        <h2 id="popular-heading" className="font-display text-3xl font-extrabold uppercase tracking-wide">
+        <h2
+          id="popular-heading"
+          className="font-display text-3xl font-extrabold uppercase tracking-wide"
+        >
           {copy.usual}
         </h2>
         <p className="mt-6 max-w-prose text-muted">{copy.emptyCategories}</p>
@@ -31,7 +34,10 @@ export function PopularCategories({
 
   return (
     <>
-      <h2 id="popular-heading" className="font-display text-3xl font-extrabold uppercase tracking-wide">
+      <h2
+        id="popular-heading"
+        className="font-display text-3xl font-extrabold uppercase tracking-wide"
+      >
         {copy.usual}
       </h2>
       <ul className="mt-4">

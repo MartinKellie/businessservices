@@ -340,14 +340,12 @@ async function commitRow(
       );
     }
     if (resolved.productServiceIds.length > 0) {
-      await tx
-        .insert(businessProductsServices)
-        .values(
-          resolved.productServiceIds.map((productServiceId) => ({
-            businessId: business.id,
-            productServiceId,
-          })),
-        );
+      await tx.insert(businessProductsServices).values(
+        resolved.productServiceIds.map((productServiceId) => ({
+          businessId: business.id,
+          productServiceId,
+        })),
+      );
     }
 
     const lat = raw.lat?.trim() ? Number(raw.lat) : undefined;

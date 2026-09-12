@@ -64,10 +64,12 @@ function BusinessList({ selectedId }: { selectedId: string | null }) {
 
   useEffect(() => {
     let cancelled = false;
-    setError(null);
     adminGet<{ businesses: AdminBusiness[] }>(`/api/admin/businesses?${query}`)
       .then((data) => {
-        if (!cancelled) setRows(data.businesses);
+        if (!cancelled) {
+          setError(null);
+          setRows(data.businesses);
+        }
       })
       .catch((err) => {
         if (!cancelled) setError(err instanceof AdminApiError ? err.message : t('common.error'));

@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { BoardButton, BoardField, BoardState, Flash, fieldClass } from '@/components/admin/admin-ui';
+import {
+  BoardButton,
+  BoardField,
+  BoardState,
+  Flash,
+  fieldClass,
+} from '@/components/admin/admin-ui';
 import { AdminApiError, adminGet, adminSend, type AdminUser } from '@/lib/admin-api';
 import type { AdminRole } from '@/lib/roles';
 
@@ -36,7 +42,9 @@ export function UsersBoard() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
-      <h1 className="font-display text-3xl font-extrabold tracking-wide uppercase">{t('users.title')}</h1>
+      <h1 className="font-display text-3xl font-extrabold tracking-wide uppercase">
+        {t('users.title')}
+      </h1>
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
         <BoardField label={t('users.email')}>
           <input className={fieldClass} value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -45,7 +53,11 @@ export function UsersBoard() {
           <input className={fieldClass} value={name} onChange={(e) => setName(e.target.value)} />
         </BoardField>
         <BoardField label={t('users.role')}>
-          <select className={fieldClass} value={role} onChange={(e) => setRole(e.target.value as AdminRole)}>
+          <select
+            className={fieldClass}
+            value={role}
+            onChange={(e) => setRole(e.target.value as AdminRole)}
+          >
             <option value="editor">{t('shell.roleEditor')}</option>
             <option value="owner">{t('shell.roleOwner')}</option>
           </select>
@@ -80,11 +92,15 @@ export function UsersBoard() {
       </div>
       <ul className="mt-8">
         {users.map((user) => (
-          <li key={user.id} className="flex flex-wrap items-baseline justify-between gap-3 border-b border-rail/20 py-3">
+          <li
+            key={user.id}
+            className="flex flex-wrap items-baseline justify-between gap-3 border-b border-rail/20 py-3"
+          >
             <div>
               <p className="font-semibold">{user.name || user.email}</p>
               <p className="text-sm text-muted">
-                {user.email} · {user.role === 'owner' ? t('shell.roleOwner') : t('shell.roleEditor')}
+                {user.email} ·{' '}
+                {user.role === 'owner' ? t('shell.roleOwner') : t('shell.roleEditor')}
                 {user.isActive ? '' : ` · ${t('users.deactivate')}`}
               </p>
             </div>
@@ -106,7 +122,9 @@ export function UsersBoard() {
               <BoardButton
                 onClick={async () => {
                   try {
-                    await adminSend(`/api/admin/users/${user.id}`, 'PATCH', { isActive: !user.isActive });
+                    await adminSend(`/api/admin/users/${user.id}`, 'PATCH', {
+                      isActive: !user.isActive,
+                    });
                     load();
                   } catch (err) {
                     setFlash(err instanceof AdminApiError ? err.message : t('common.failed'));

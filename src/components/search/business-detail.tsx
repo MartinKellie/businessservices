@@ -3,12 +3,7 @@
 import { AtSign, ExternalLink, Mail, Users } from 'lucide-react';
 import type { PublicBusiness } from '@/lib/api-contract';
 import { PublicApiError, fetchBusiness } from '@/lib/api-contract';
-import {
-  facebookHref,
-  formatHour,
-  instagramHref,
-  websiteHref,
-} from '@/lib/public-format';
+import { facebookHref, formatHour, instagramHref, websiteHref } from '@/lib/public-format';
 import { fill, statusCopy } from '@/lib/public-copy';
 import { usePublicCopy } from '@/lib/use-public-copy';
 import { useEffect, useState } from 'react';
@@ -31,9 +26,7 @@ export function BusinessDetail({ businessId }: { businessId: string }) {
       .catch((err: unknown) => {
         if (cancelled) return;
         setBusiness(null);
-        setError(
-          err instanceof PublicApiError ? err.message : copy.detailLoadError,
-        );
+        setError(err instanceof PublicApiError ? err.message : copy.detailLoadError);
         setLoading(false);
       });
     return () => {
@@ -69,7 +62,10 @@ export function BusinessDetail({ businessId }: { businessId: string }) {
       {business.relocatedTo ? (
         <p>
           {extraStatus ?? copy.statusRelocated} — {copy.relocatedNow}:{' '}
-          <a href={`/buscar?q=${encodeURIComponent(business.relocatedTo.name)}`} className="underline">
+          <a
+            href={`/buscar?q=${encodeURIComponent(business.relocatedTo.name)}`}
+            className="underline"
+          >
             {business.relocatedTo.name}
           </a>
         </p>
@@ -80,8 +76,14 @@ export function BusinessDetail({ businessId }: { businessId: string }) {
       {business.openingHours.length > 0 ? (
         <ul className="space-y-0.5">
           {business.openingHours.map((row, index) => (
-            <li key={`${row.dayOfWeek}-${row.opensAt}-${index}`} className="flex justify-between gap-4">
-              <span>{copy.days[row.dayOfWeek - 1] ?? fill(copy.dayFallback, { n: String(row.dayOfWeek) })}</span>
+            <li
+              key={`${row.dayOfWeek}-${row.opensAt}-${index}`}
+              className="flex justify-between gap-4"
+            >
+              <span>
+                {copy.days[row.dayOfWeek - 1] ??
+                  fill(copy.dayFallback, { n: String(row.dayOfWeek) })}
+              </span>
               <span className="tabular-nums">
                 {formatHour(row.opensAt)}–{formatHour(row.closesAt)}
               </span>
@@ -92,7 +94,10 @@ export function BusinessDetail({ businessId }: { businessId: string }) {
 
       <div className="flex flex-wrap gap-2">
         {business.contact.email ? (
-          <a href={`mailto:${business.contact.email}`} className="inline-flex items-center gap-1 underline-offset-4 hover:underline">
+          <a
+            href={`mailto:${business.contact.email}`}
+            className="inline-flex items-center gap-1 underline-offset-4 hover:underline"
+          >
             <Mail size={14} strokeWidth={2} aria-hidden="true" />
             {copy.email}
           </a>

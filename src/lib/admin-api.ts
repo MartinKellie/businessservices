@@ -2,12 +2,7 @@ import type { ApiError } from '@/lib/http';
 import type { AdminRole } from '@/lib/roles';
 
 export type BusinessStatus =
-  | 'draft'
-  | 'active'
-  | 'temporarily_closed'
-  | 'permanently_closed'
-  | 'relocated'
-  | 'archived';
+  'draft' | 'active' | 'temporarily_closed' | 'permanently_closed' | 'relocated' | 'archived';
 
 export const STATUS_TRANSITIONS: Record<BusinessStatus, BusinessStatus[]> = {
   draft: ['active', 'archived'],
@@ -254,7 +249,13 @@ export interface SearchPreviewHit {
 export interface SearchPreviewList {
   total: number;
   resolved: { conceptIds: string[]; categoryIds: string[]; globalTerms: string[] };
-  results: { rank: number; id: string; name: string; status: string; primaryCategory: string | null }[];
+  results: {
+    rank: number;
+    id: string;
+    name: string;
+    status: string;
+    primaryCategory: string | null;
+  }[];
 }
 
 export function dateInputValue(value: string | null | undefined): string {

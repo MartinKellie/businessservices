@@ -65,7 +65,9 @@ export function CookieDock() {
       {panelOpen ? (
         <div className="mx-auto flex max-w-5xl flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
-            <p className="font-display text-xl font-extrabold uppercase tracking-wide">{copy.cookiePanelTitle}</p>
+            <p className="font-display text-xl font-extrabold uppercase tracking-wide">
+              {copy.cookiePanelTitle}
+            </p>
             <p className="mt-3 font-semibold">{copy.cookieNecessary}</p>
             <p className="mt-1 text-sm text-muted">{copy.cookieNecessaryHint}</p>
           </div>

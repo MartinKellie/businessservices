@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { BoardButton, BoardField, BoardState, Flash, fieldClass } from '@/components/admin/admin-ui';
+import {
+  BoardButton,
+  BoardField,
+  BoardState,
+  Flash,
+  fieldClass,
+} from '@/components/admin/admin-ui';
 import { AdminApiError, adminGet, adminSend, type AdminSettings } from '@/lib/admin-api';
 
 export function SettingsBoard() {

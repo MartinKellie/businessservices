@@ -64,13 +64,7 @@ export function BoardField({
 export const fieldClass =
   'w-full border-0 border-b border-rail/50 bg-transparent py-2 px-0 text-ink outline-none focus-visible:border-ink';
 
-export function Flash({
-  tone,
-  children,
-}: {
-  tone: 'ok' | 'err' | 'warn';
-  children: ReactNode;
-}) {
+export function Flash({ tone, children }: { tone: 'ok' | 'err' | 'warn'; children: ReactNode }) {
   const cls =
     tone === 'ok'
       ? 'bg-ink text-board'

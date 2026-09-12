@@ -11,7 +11,9 @@ export function MaintenanceScreen() {
       <div className="absolute top-4 right-4">
         <LocaleToggle />
       </div>
-      <p className="font-display text-5xl font-extrabold uppercase tracking-wide">{copy.maintenanceTitle}</p>
+      <p className="font-display text-5xl font-extrabold uppercase tracking-wide">
+        {copy.maintenanceTitle}
+      </p>
       <p className="mt-6 text-lg text-muted">{copy.maintenanceMessage}</p>
     </main>
   );

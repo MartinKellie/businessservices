@@ -64,7 +64,10 @@ export function HomeSearch({ areas }: { areas: PublicArea[] }) {
 
   return (
     <form onSubmit={onSubmit} className="mx-auto w-full max-w-3xl">
-      <label htmlFor="home-q" className="font-display block text-4xl font-extrabold uppercase leading-none tracking-wide sm:text-6xl md:text-7xl">
+      <label
+        htmlFor="home-q"
+        className="font-display block text-4xl font-extrabold uppercase leading-none tracking-wide sm:text-6xl md:text-7xl"
+      >
         {copy.whatLooking}
       </label>
       <div className="letter-track mt-8 border-b-2 border-rail pb-2">

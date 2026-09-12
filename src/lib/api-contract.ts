@@ -131,7 +131,9 @@ export async function fetchPublicSettings(): Promise<PublicSettings> {
 }
 
 export async function fetchAreas(): Promise<PublicArea[]> {
-  const data = await readJson<{ areas: PublicArea[] }>(await fetch('/api/areas', { cache: 'no-store' }));
+  const data = await readJson<{ areas: PublicArea[] }>(
+    await fetch('/api/areas', { cache: 'no-store' }),
+  );
   return data.areas;
 }
 
@@ -176,7 +178,9 @@ export function searchQueryToParams(query: SearchQuery): URLSearchParams {
 
 export async function fetchSearch(query: SearchQuery): Promise<SearchResult> {
   const params = searchQueryToParams(query);
-  return readJson<SearchResult>(await fetch(`/api/search?${params.toString()}`, { cache: 'no-store' }));
+  return readJson<SearchResult>(
+    await fetch(`/api/search?${params.toString()}`, { cache: 'no-store' }),
+  );
 }
 
 export async function fetchBusiness(idOrSlug: string): Promise<PublicBusiness> {
@@ -198,7 +202,9 @@ export interface EnquiryPayload {
   file?: File | null;
 }
 
-export async function submitEnquiry(input: EnquiryPayload): Promise<{ ok: true; id: string | null }> {
+export async function submitEnquiry(
+  input: EnquiryPayload,
+): Promise<{ ok: true; id: string | null }> {
   const hasFile = Boolean(input.file && input.file.size > 0);
   if (hasFile && input.file) {
     const form = new FormData();
@@ -232,7 +238,9 @@ export async function submitEnquiry(input: EnquiryPayload): Promise<{ ok: true; 
   );
 }
 
-export function parseSearchParams(searchParams: Record<string, string | string[] | undefined>): SearchQuery {
+export function parseSearchParams(
+  searchParams: Record<string, string | string[] | undefined>,
+): SearchQuery {
   const one = (key: string) => {
     const value = searchParams[key];
     return Array.isArray(value) ? value[0] : value;

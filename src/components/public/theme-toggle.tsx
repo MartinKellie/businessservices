@@ -27,7 +27,8 @@ export function ThemeToggle() {
     theme === 'dark' ? copy.themeDark : theme === 'light' ? copy.themeLight : copy.themeSystem;
 
   function cycle() {
-    const next: ThemePreference = theme === 'system' ? 'light' : theme === 'light' ? 'dark' : 'system';
+    const next: ThemePreference =
+      theme === 'system' ? 'light' : theme === 'light' ? 'dark' : 'system';
     setStored(next);
     applyTheme(next);
   }

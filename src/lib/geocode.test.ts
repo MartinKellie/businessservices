@@ -7,9 +7,11 @@ function fakeNominatimResponse(rows: { display_name: string; lat: string; lon: s
 
 describe('searchAddress', () => {
   it('normalises Nominatim rows and caches by query', async () => {
-    const fetchImpl = vi.fn().mockResolvedValue(
-      fakeNominatimResponse([{ display_name: 'Centro, Cúcuta', lat: '7.8939', lon: '-72.5078' }]),
-    );
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValue(
+        fakeNominatimResponse([{ display_name: 'Centro, Cúcuta', lat: '7.8939', lon: '-72.5078' }]),
+      );
 
     const first = await searchAddress('Centro, Cucuta', fetchImpl);
     expect(first).toEqual([{ label: 'Centro, Cúcuta', lat: 7.8939, lng: -72.5078 }]);

@@ -413,7 +413,10 @@ async function main() {
     name: owner.name,
   };
 
-  const csv = toCsv([[...IMPORT_COLUMNS], ...BUSINESSES.map((b) => IMPORT_COLUMNS.map((c) => b[c]))]);
+  const csv = toCsv([
+    [...IMPORT_COLUMNS],
+    ...BUSINESSES.map((b) => IMPORT_COLUMNS.map((c) => b[c])),
+  ]);
   const file = new File([csv], FILENAME, { type: 'text/csv' });
 
   const batch = await createImportBatch(file, 'csv', actor);

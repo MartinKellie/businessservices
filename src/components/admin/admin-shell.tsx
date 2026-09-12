@@ -58,10 +58,7 @@ export function AdminShell({
         >
           {open ? t('shell.closeMenu') : t('shell.menu')}
         </button>
-        <Link
-          href="/"
-          className="shrink-0 px-2 py-2 text-sm underline-offset-4 hover:underline"
-        >
+        <Link href="/" className="shrink-0 px-2 py-2 text-sm underline-offset-4 hover:underline">
           {t('shell.home')}
         </Link>
         <p className="min-w-0 flex-1 truncate text-sm">
