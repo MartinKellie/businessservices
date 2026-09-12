@@ -4,10 +4,13 @@ This document is the contract between the backend (Claude Code) and the frontend
 (Cursor). Cursor owns all design and frontend implementation; the backend owns the data
 model, APIs, auth, integrations and business rules described here.
 
-**Status:** Phase 1 complete (data model & migrations). Route structure, layouts, i18n
-plumbing, a health endpoint and the full database schema exist; every screen is still a
-placeholder. API payloads marked _TBD_ are defined in later phases and this document is
-updated at the end of each phase whose APIs change.
+**Status:** Backend through Phase 9 complete (see §13) — full schema, auth, business/taxonomy
+CRUD, search, enquiries, import/export, System Settings, geocoding. Public board pages
+(`/`, `/buscar`, `/acerca`, `/anunciate`, `/contacto`, `/privacidad`, `/terminos`) are built.
+**The admin dashboard (`/admin`) is implemented** (bilingual ES/EN filing-wall): businesses
+list + ficha editor, enquiries, follow-ups, taxonomy, import/export, search-preview, system
+settings, user management, and a designed Google sign-in. This document is updated at the
+end of each phase whose APIs change.
 
 British English in code comments and docs; **all public UI copy is Spanish**.
 
@@ -471,5 +474,8 @@ read-only `id, slug, status, lastVerifiedAt` columns.
 - **Public board pages:** `/acerca`, `/anunciate`, `/contacto`, `/privacidad` and `/terminos`
   are designed in the letter-board world. Contact posts to `POST /api/enquiries`. Privacy and
   terms carry factual covering copy; official legal wording remains pending.
+- **Admin dashboard:** bilingual filing-wall UI at `/admin` — businesses, ficha editor,
+  enquiries, follow-ups, taxonomy, import/export, search-preview, settings, users, Google
+  sign-in. Locale via `ADMIN_LOCALE` cookie and `next-intl` catalogues.
 - **Phase 9:** `GET /api/geocode` (scope §10) — resolves a typed address/area to
   coordinates via Nominatim, so "Near me" works without device geolocation. See §4.

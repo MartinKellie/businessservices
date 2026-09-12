@@ -38,6 +38,12 @@ export function SiteHeader() {
             </Link>
           );
         })}
+        <Link
+          href="/admin/iniciar-sesion"
+          className="px-2 py-1 text-sm text-muted underline-offset-4 hover:underline"
+        >
+          {copy.adminEntry}
+        </Link>
         <LocaleToggle />
         <ThemeToggleSlot />
       </nav>

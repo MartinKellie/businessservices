@@ -166,6 +166,27 @@ textarea::placeholder {
   animation: board-pulse 1.2s ease-in-out infinite;
 }
 
+.admin-ficha {
+  animation: ficha-in 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes ficha-in {
+  from {
+    transform: translateX(8%);
+    opacity: 0.35;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-ficha {
+    animation: none;
+  }
+}
+
 @keyframes board-pulse {
   50% {
     opacity: 0.45;

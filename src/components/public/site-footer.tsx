@@ -36,7 +36,11 @@ export function SiteFooter() {
             {copy.cookies}
           </button>
         </p>
-        <p className="text-xs tracking-wide uppercase">{copy.poweredBy}</p>
+        <p className="text-xs tracking-wide uppercase">
+          <Link href="/admin/iniciar-sesion" className="underline-offset-4 hover:underline">
+            {copy.poweredBy}
+          </Link>
+        </p>
       </div>
     </footer>
   );

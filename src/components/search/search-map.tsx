@@ -8,6 +8,14 @@ import type { SearchPin } from '@/lib/api-contract';
 import { CUCUTA_CENTER, FALLBACK_MAP_STYLE, mapStyleUrl } from '@/lib/map-style';
 import { usePublicCopy } from '@/lib/use-public-copy';
 
+// Turbopack can't resolve maplibre-gl's own `import.meta.url`-based worker lookup, so the
+// GeoJSON source's worker never loads and pins silently never render (base raster tiles
+// don't need the worker, so the map itself still looks fine). scripts/copy-maplibre-worker.mjs
+// copies the worker script — and the sibling chunk it imports — into /public unmodified.
+if (typeof window !== 'undefined') {
+  maplibregl.setWorkerUrl('/vendor/maplibre-gl/maplibre-gl-worker.mjs');
+}
+
 interface SearchMapProps {
   pins: SearchPin[];
   selectedId: string | null;
@@ -44,6 +52,9 @@ export function SearchMap({ pins, selectedId, onSelect, userLocation, hoveredId 
       attributionControl: { compact: true },
     });
     mapRef.current = map;
+    map.on('error', (event) => {
+      console.error('[SearchMap] maplibre error: ' + String(event.error?.message ?? event.error));
+    });
 
     map.on('load', () => {
       const ink = readToken('--ink', '#1a1812');
