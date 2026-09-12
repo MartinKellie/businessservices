@@ -1,0 +1,217 @@
+{
+  "title": "Choose the admin composition",
+  "question": "The public site is already the neighbourhood pizarra. This round picks how staff work on that board: drawers, a morning slate, or a map workbench. Lock one.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "The filing wall",
+      "kicker": "THE ROLL",
+      "lineage": "Colombian oficina ficha drawers plus the public letter-board",
+      "thesis": "Work lives in labelled drawers; pulling one opens a ruled list, and a ficha slides in from the right.",
+      "palette": ["#f3ead4", "#1a1812", "#3f382c", "#0d6b38", "#8a3d0b"],
+      "materials": [
+        "sun-bleached enamel board",
+        "1px square rails",
+        "hard invert tiles",
+        "Atkinson body",
+        "Big Shoulders only on the drawer labels"
+      ],
+      "viewport": "A left column of inverted drawer labels (Negocios, Consultas, Seguimientos, Taxonomía, Importar, Ajustes). The remaining board is a dense ruled business list. Selecting a row slides a ficha from the right with identity, contact, hours, and publish blockers. Locale ES/EN and the signed-in name sit on a thin top rail, not a hero.",
+      "risk": "One extra click if the drawer column steals width from the list on a laptop.",
+      "raised": [
+        {
+          "from": "challenger-split-flap",
+          "raise": "Rows are live entities: status restyles the row in place; columns never jump."
+        },
+        {
+          "from": "challenger-tensegrity",
+          "raise": "The open ficha shows what blocks publish as opposing forces, not a toast."
+        },
+        {
+          "from": "challenger-mecha",
+          "raise": "ES/EN is a stacked bilingual label pair on chrome, never a second colour."
+        }
+      ],
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "locale + session", "x": 0, "y": 0, "w": 12, "h": 1 },
+          { "label": "drawers", "x": 0, "y": 1, "w": 2, "h": 9, "accent": true },
+          { "label": "search + status filters", "x": 2, "y": 1, "w": 6, "h": 1 },
+          { "label": "ruled business list", "x": 2, "y": 2, "w": 6, "h": 8 },
+          { "label": "open ficha", "x": 8, "y": 1, "w": 4, "h": 9 }
+        ]
+      },
+      "comp": ".impeccable/mocks/decision/assigned.webp"
+    },
+    {
+      "id": "slate",
+      "label": "Today’s slate",
+      "lineage": "Morning shop slate: what is due, what arrived, what is still a draft",
+      "thesis": "Staff land on three urgency columns; every other screen is a drill-down from a ticket on that slate.",
+      "palette": ["#f3ead4", "#1a1812", "#3f382c", "#0d6b38", "#8a3d0b"],
+      "materials": [
+        "enamel board",
+        "square rails",
+        "invert for the selected ticket",
+        "warn band only on overdue"
+      ],
+      "viewport": "Three equal columns fill the first viewport: Vencidos, Consultas nuevas, Borradores. Each ticket is a ruled menu row. Opening one expands a ficha across the lower board. Nav to full lists is secondary, under the slate.",
+      "risk": "A quiet day looks empty, and a busy day hides the full business catalogue behind the home board.",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "locale + session", "x": 0, "y": 0, "w": 12, "h": 1 },
+          { "label": "overdue", "x": 0, "y": 1, "w": 4, "h": 5, "accent": true },
+          { "label": "new enquiries", "x": 4, "y": 1, "w": 4, "h": 5 },
+          { "label": "drafts", "x": 8, "y": 1, "w": 4, "h": 5 },
+          { "label": "open ticket ficha", "x": 0, "y": 6, "w": 12, "h": 4 }
+        ]
+      },
+      "comp": ".impeccable/mocks/decision/slate.webp"
+    },
+    {
+      "id": "workbench",
+      "label": "Map workbench",
+      "lineage": "The public /buscar split, turned into an editor",
+      "thesis": "The map is the desk; the list is a thin index; the editor docks beside the pin you are placing.",
+      "palette": ["#f3ead4", "#1a1812", "#3f382c", "#0d6b38", "#8a3d0b"],
+      "materials": ["flooded board", "map as the working surface", "inverted selected pin and row"],
+      "viewport": "A Cúcuta map owns two-thirds of the board. A slim left index lists businesses. Selecting a pin docks the editor on the right for address, service area, and hours. Taxonomy, enquiries, and settings are tucked behind a command strip.",
+      "risk": "It reads as the public directory, which you named as a failure, and it starves list-heavy work (enquiries, taxonomy, import).",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "command strip", "x": 0, "y": 0, "w": 12, "h": 1 },
+          { "label": "business index", "x": 0, "y": 1, "w": 3, "h": 9 },
+          { "label": "map", "x": 3, "y": 1, "w": 5, "h": 9, "accent": true },
+          { "label": "editor dock", "x": 8, "y": 1, "w": 4, "h": 9 }
+        ]
+      },
+      "comp": ".impeccable/mocks/decision/workbench.webp"
+    },
+    {
+      "id": "challenger-split-flap",
+      "label": "Staff departure board",
+      "verdict": "competitive",
+      "lineage": "Rail concourse split-flap, fused onto the enamel pizarra",
+      "thesis": "The catalogue is one full-bleed table; flaps never move, only the letters on the selected row invert.",
+      "palette": ["#f3ead4", "#1a1812", "#3f382c", "#0d6b38", "#8a3d0b"],
+      "materials": [
+        "ruled enamel rows",
+        "condensed caps for names",
+        "warn restyle in place",
+        "no steel frame, no amber lamps"
+      ],
+      "viewport": "Name, barrio, status, follow-up, WhatsApp as fixed columns across the whole board. Search sits in the top rail at body size. Opening a row expands the ficha as extra ruled lines under that row, not a side panel.",
+      "case": "Holds product clarity: editors scan and act in one grid. Identification is shared with the public board, so it can drift into looking like /buscar.",
+      "risk": "Inline expansion fights the deep business editor (hours, media, verification).",
+      "hero": "https://impeccable.style/worlds/cards/signals-instruments-split-flap-concourse-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/signals-instruments-split-flap-concourse.webp",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "search + locale", "x": 0, "y": 0, "w": 12, "h": 1 },
+          { "label": "column headers", "x": 0, "y": 1, "w": 12, "h": 1 },
+          { "label": "live rows", "x": 0, "y": 2, "w": 12, "h": 5, "accent": true },
+          { "label": "expanded ficha under row", "x": 0, "y": 7, "w": 12, "h": 3 }
+        ]
+      },
+      "comp": ".impeccable/mocks/decision/challenger-split-flap.webp"
+    },
+    {
+      "id": "challenger-sneaker",
+      "label": "Stacked boxes",
+      "verdict": "competitive",
+      "lineage": "Archive box wall, fused as enamel drawers stacked by status",
+      "thesis": "Draft, active, and closed listings are stacks of labelled ends; you pull a box halfway, then open the ficha.",
+      "palette": ["#f3ead4", "#1a1812", "#3f382c", "#0d6b38", "#8a3d0b"],
+      "materials": [
+        "enamel ends not cardboard",
+        "one-line silhouette as category icon",
+        "pulled row invert"
+      ],
+      "viewport": "Three tall stacks by status fill the board. Each end label is name + barrio in condensed caps. The pulled box reveals the ficha as the interior, not a separate page.",
+      "case": "Holds identification with filing work. Loses clarity once taxonomy, import, and settings need a home that is not a box.",
+      "risk": "Stacks look playful and hide the overdue work that a list would surface first.",
+      "hero": "https://impeccable.style/worlds/cards/textiles-weave-drape-fashion-sneaker-box-stacks-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/textiles-weave-drape-fashion-sneaker-box-stacks.webp",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "command", "x": 0, "y": 0, "w": 12, "h": 1 },
+          { "label": "draft stack", "x": 0, "y": 1, "w": 4, "h": 9 },
+          { "label": "active stack", "x": 4, "y": 1, "w": 4, "h": 9, "accent": true },
+          { "label": "closed stack", "x": 8, "y": 1, "w": 4, "h": 9 }
+        ]
+      },
+      "comp": ".impeccable/mocks/decision/challenger-sneaker.webp"
+    },
+    {
+      "id": "challenger-tensegrity",
+      "label": "Force diagram",
+      "verdict": "declined",
+      "lineage": "Tensegrity column as a relationship graph",
+      "thesis": "Listings, taxonomy, and enquiries as struts you can trace to a counterforce.",
+      "palette": ["#f3ead4", "#1a1812", "#8a3d0b"],
+      "materials": ["ink rails as rods", "warn as tension cord"],
+      "viewport": "A network in the centre with leader lines out to listing nodes.",
+      "case": "Loses product clarity: daily CRUD is not load-tracing.",
+      "kept": "Publish blockers as visible opposing forces on the open ficha.",
+      "hero": "https://impeccable.style/worlds/cards/kinetic-sculpture-automata-tensegrity-breathing-column-hero.webp"
+    },
+    {
+      "id": "challenger-ascii",
+      "label": "Glyph density",
+      "verdict": "declined",
+      "lineage": "ASCII live scene as a monospace grid",
+      "thesis": "The whole admin is one character grid; tone is glyph density.",
+      "palette": ["#161910", "#f3ead4"],
+      "materials": ["monospace cells"],
+      "viewport": "A phosphor grid of listings.",
+      "case": "Loses audience identification for Cúcuta staff on the enamel board.",
+      "kept": "Density as information, not decoration.",
+      "hero": "https://impeccable.style/worlds/cards/medium-native-ascii-live-scene-render-hero.webp"
+    },
+    {
+      "id": "challenger-mecha",
+      "label": "Crisis wall",
+      "verdict": "declined",
+      "lineage": "Mecha-anime command centre",
+      "thesis": "Monumental countdowns and hazard bands for overdue work.",
+      "palette": ["#161910", "#0d6b38", "#8a3d0b"],
+      "materials": ["phosphor glow", "chevron bands"],
+      "viewport": "A black wall with bilingual stacked labels and a huge follow-up countdown.",
+      "case": "Loses identification: MK1GROUP editors are not in a mecha cockpit.",
+      "kept": "Bilingual stacked labels on chrome, never a second accent colour.",
+      "hero": "https://impeccable.style/worlds/cards/pop-culture-shelf-anime-command-center-hero.webp"
+    },
+    {
+      "id": "challenger-generative",
+      "label": "Seeded identity",
+      "verdict": "declined",
+      "lineage": "Parametric brand that reseeds the surface",
+      "thesis": "A mark reseeds palette and layout from live inputs.",
+      "palette": ["#f3ead4", "#1a1812"],
+      "materials": ["flat vector", "seed-derived accents"],
+      "viewport": "A parameter panel that restyles the dashboard.",
+      "case": "Loses both axes: the visual world is already pinned and must not reseed.",
+      "kept": "Nothing; the world stays enamel.",
+      "hero": "https://impeccable.style/worlds/cards/generative-parametric-identity-hero.webp"
+    }
+  ],
+  "reroll": {
+    "registers": ["safer", "bolder"]
+  },
+  "buildPath": {
+    "value": "comp",
+    "toggle": true
+  },
+  "canon": false,
+  "steer": true
+}
